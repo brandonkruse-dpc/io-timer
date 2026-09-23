@@ -34,27 +34,38 @@ Based directly on two primary instructional frameworks used by IB educators worl
 
 ## Deploying to GitHub Pages
 
-This application has zero server-side or third-party backend dependencies and is configured with relative base paths (`base: './'`) in `vite.config.ts`.
+### Why was it not visible on GitHub Pages previously?
+Vite/React applications cannot be run directly from the raw `main` branch root because browsers cannot interpret `.tsx` files directly. GitHub Pages needs the compiled production output (`dist/` folder).
 
-### Method A: GitHub Pages via GitHub Actions (Recommended)
+We have configured **two ready-to-use methods** to deploy this app seamlessly:
 
-1. Push this repository to GitHub.
-2. In your repository on GitHub, navigate to **Settings** > **Pages**.
-3. Under **Build and deployment**, select **Source** as **GitHub Actions**.
-4. Choose the default **Static HTML** or **Vite** action. A simple `.github/workflows/deploy.yml` can build with:
+---
+
+### Option 1: Automatic Deployment with GitHub Actions (Recommended — Zero setup!)
+
+A GitHub Actions workflow is now included at `.github/workflows/deploy.yml`.
+
+1. Commit and push your code to your GitHub repository (including the new `.github/` folder).
+2. Go to your repository on GitHub.
+3. Click on **Settings** (tab at the top right of your repo).
+4. In the left sidebar, click **Pages**.
+5. Under **Build and deployment** > **Source**, change the dropdown from **"Deploy from a branch"** to **"GitHub Actions"**.
+6. That's it! GitHub Actions will automatically build the site and deploy it. You can watch the deployment under the **Actions** tab. Your website URL will appear on the Pages settings screen.
+
+---
+
+### Option 2: 1-Command CLI Deployment (`gh-pages`)
+
+If you prefer deploying directly from your computer terminal:
+
+1. In your project directory, run:
    ```bash
-   npm ci
-   npm run build
+   npm run deploy
    ```
-   and upload the `dist` folder.
-
-### Method B: Manual Deployment with `gh-pages`
-
-```bash
-npm install
-npm run build
-npx gh-pages -d dist
-```
+   *(This automatically runs `npm run build` and publishes the `dist` folder to a `gh-pages` branch on your GitHub repository).*
+2. Go to **Settings** > **Pages** in your GitHub repository.
+3. Under **Source**, ensure **"Deploy from a branch"** is selected, with branch **`gh-pages`** and folder **`/ (root)`**.
+4. Click **Save**.
 
 ---
 
