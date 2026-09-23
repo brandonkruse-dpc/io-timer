@@ -60,12 +60,12 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
   const isCloseToTenMin = totalElapsedSeconds >= 540 && totalElapsedSeconds <= 600; // 9:00 - 10:00
 
   return (
-    <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl backdrop-blur-md">
+    <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 shadow-xl backdrop-blur-md transition-colors">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
 
         {/* Left block: Current Segment Info & Time */}
         <div className="flex items-center gap-4 min-w-[280px]">
-          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
             {/* Circular progress ring */}
             <svg className="absolute inset-0 h-full w-full -rotate-90">
               <circle
@@ -74,7 +74,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
                 r="26"
                 stroke="currentColor"
                 strokeWidth="4"
-                className="text-slate-800"
+                className="text-slate-200 dark:text-slate-800"
                 fill="none"
               />
               <circle
@@ -89,27 +89,27 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
                 fill="none"
               />
             </svg>
-            <span className="font-mono-nums text-sm font-bold text-white z-10">
+            <span className="font-mono-nums text-sm font-bold text-slate-900 dark:text-white z-10">
               {currentSegment.orderNumber}
             </span>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                 Segment {segmentIndex + 1} of {totalSegments}
               </span>
-              <span className="text-slate-600">·</span>
-              <span className="text-xs text-slate-400 font-mono-nums">
+              <span className="text-slate-400 dark:text-slate-600">·</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono-nums font-semibold">
                 Target: {formatTime(currentSegment.durationSeconds)}
               </span>
             </div>
-            <h4 className="text-base font-bold text-white truncate max-w-xs sm:max-w-md">
+            <h4 className="text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">
               {currentSegment.title}
             </h4>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-slate-400">Remaining in segment:</span>
-              <span className={`font-mono-nums font-bold text-sm ${segmentRemaining <= 30 && isRunning ? 'text-rose-400 animate-pulse' : 'text-slate-100'}`}>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Remaining in segment:</span>
+              <span className={`font-mono-nums font-bold text-sm ${segmentRemaining <= 30 && isRunning ? 'text-rose-500 animate-pulse' : 'text-slate-900 dark:text-slate-100'}`}>
                 {formatTime(segmentRemaining)}
               </span>
             </div>
@@ -122,7 +122,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
             <button
               onClick={onPrevSegment}
               disabled={segmentIndex === 0}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-150 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors border border-slate-200 dark:border-slate-750 shadow-sm"
               title="Previous segment (Left Arrow)"
             >
               <SkipBack className="h-5 w-5" />
@@ -143,7 +143,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
             <button
               onClick={onNextSegment}
               disabled={segmentIndex >= totalSegments - 1}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-150 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors border border-slate-200 dark:border-slate-750 shadow-sm"
               title="Next segment (Right Arrow)"
             >
               <SkipForward className="h-5 w-5" />
@@ -151,17 +151,17 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
 
             <button
               onClick={onReset}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800/60 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-200 dark:border-slate-800"
               title="Reset Timer (R)"
             >
               <RotateCcw className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-400">
-            <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">Space</kbd> to {isRunning ? 'Pause' : 'Start'}</span>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-150 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono text-[10px] border border-slate-200 dark:border-slate-700">Space</kbd> to {isRunning ? 'Pause' : 'Start'}</span>
             <span className="mx-1.5">·</span>
-            <span><kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">→</kbd> to Switch</span>
+            <span><kbd className="px-1.5 py-0.5 rounded bg-slate-150 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono text-[10px] border border-slate-200 dark:border-slate-700">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-150 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono text-[10px] border border-slate-200 dark:border-slate-700">→</kbd> to Switch</span>
           </div>
         </div>
 
@@ -169,21 +169,21 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center lg:flex-col lg:items-end justify-between gap-3">
           <div>
             <div className="flex items-center justify-end gap-2 text-xs">
-              <span className="text-slate-400">Total Oral Timer:</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">Total Oral Timer:</span>
               <span className={`font-mono-nums font-bold text-lg ${
                 isOvertime 
-                  ? 'text-rose-400 animate-pulse' 
+                  ? 'text-rose-500 animate-pulse' 
                   : isCloseToTenMin 
-                    ? 'text-amber-400' 
-                    : 'text-white'
+                    ? 'text-amber-600 dark:text-amber-400' 
+                    : 'text-slate-900 dark:text-white'
               }`}>
                 {formatTime(totalElapsedSeconds)}
               </span>
-              <span className="text-slate-500 font-mono-nums">/ {formatTime(totalDurationSeconds)}</span>
+              <span className="text-slate-400 dark:text-slate-500 font-mono-nums">/ {formatTime(totalDurationSeconds)}</span>
             </div>
 
             {/* Total progress bar */}
-            <div className="w-48 h-2 rounded-full bg-slate-800 mt-1.5 overflow-hidden">
+            <div className="w-48 h-2 rounded-full bg-slate-200 dark:bg-slate-800 mt-1.5 overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 ${
                   isOvertime ? 'bg-rose-500' : isCloseToTenMin ? 'bg-amber-500' : 'bg-emerald-500'
@@ -193,7 +193,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
             </div>
 
             {isOvertime && (
-              <div className="flex items-center gap-1 text-[11px] text-rose-400 font-semibold mt-1">
+              <div className="flex items-center gap-1 text-[11px] text-rose-500 font-semibold mt-1">
                 <AlertTriangle className="h-3 w-3" />
                 <span>Exceeded 10-Minute IB Oral Limit!</span>
               </div>
@@ -204,7 +204,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onManualGIPing}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors"
               title="Trigger Global Issue Check-in Sound/Alert"
             >
               <Bell className="h-3.5 w-3.5" />
@@ -215,8 +215,8 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
               onClick={onToggleSound}
               className={`p-1.5 rounded-lg border transition-colors ${
                 soundEnabled
-                  ? 'bg-slate-800 text-amber-400 border-slate-700'
-                  : 'bg-slate-950 text-slate-500 border-slate-800'
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                  : 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
               }`}
               title={soundEnabled ? 'Chimes enabled' : 'Muted'}
             >
@@ -227,8 +227,8 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
               onClick={onToggleVoice}
               className={`p-1.5 rounded-lg border transition-colors ${
                 voiceSpeechEnabled
-                  ? 'bg-slate-800 text-emerald-400 border-slate-700'
-                  : 'bg-slate-950 text-slate-500 border-slate-800'
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                  : 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
               }`}
               title={voiceSpeechEnabled ? 'Spoken speech prompts enabled' : 'Speech cues off'}
             >
@@ -237,10 +237,10 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
 
             <button
               onClick={onToggleDiscussion}
-              className={`px-2.5 py-1 text-xs rounded-lg border transition-colors ${
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors ${
                 includeDiscussion
-                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                  ? 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/40'
+                  : 'bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
               title="Add 5-minute teacher Q&A discussion period after 10m"
             >

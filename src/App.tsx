@@ -15,8 +15,10 @@ import { GlobalIssueReminder } from './components/GlobalIssueReminder';
 import { StudentIOData, Segment } from './types';
 import { loadStudentData, saveStudentData, DISCUSSION_SEGMENT } from './utils/templates';
 import { audioSynth } from './utils/audio';
+import { useTheme } from './hooks/useTheme';
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [studentData, setStudentData] = useState<StudentIOData>(() => loadStudentData());
   const [activeTab, setActiveTab] = useState<ActiveTab>('quadrant');
 
@@ -238,9 +240,9 @@ export default function App() {
   }, [handleTogglePlay, handleNextSegment, handlePrevSegment, handleResetTimer]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-150">
       
-      {/* 3-Zone Top Navigation Bar */}
+      {/* 3-Zone Top Navigation Bar with Strict Pinned Border */}
       <HeaderNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -248,6 +250,8 @@ export default function App() {
         totalElapsedSeconds={totalElapsedSeconds}
         totalDurationSeconds={totalDurationSeconds}
         isRunning={isRunning}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main App Body */}
@@ -365,17 +369,17 @@ export default function App() {
       </main>
 
       {/* Quiet Academic Footer */}
-      <footer className="no-print border-t border-slate-900 bg-slate-950 py-6 text-xs text-slate-500">
+      <footer className="no-print border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-6 text-xs text-slate-500 dark:text-slate-400 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span>IB English A: Language & Literature</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">IB English A: Language & Literature</span>
             <span aria-hidden="true">·</span>
             <span>Individual Oral (IO) 10-Minute Assessment</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+          <div className="flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400">
             <span>Client-side Web App</span>
             <span aria-hidden="true">·</span>
-            <span>Ready for GitHub Pages Deployment</span>
+            <span>Deployable on GitHub Pages</span>
           </div>
         </div>
       </footer>

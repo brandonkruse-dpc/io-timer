@@ -211,20 +211,20 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
       {feedbackMessage && (
         <div className={`no-print rounded-2xl border p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 ${
           feedbackMessage.type === 'success'
-            ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
-            : 'bg-rose-950/90 border-rose-500/50 text-rose-200'
+            ? 'bg-emerald-50 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-500/50 text-emerald-900 dark:text-emerald-200'
+            : 'bg-rose-50 dark:bg-rose-950/90 border-rose-300 dark:border-rose-500/50 text-rose-900 dark:text-rose-200'
         }`}>
           <div className="flex items-center gap-2.5">
             {feedbackMessage.type === 'success' ? (
-              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0" />
             )}
             <span className="text-xs sm:text-sm font-semibold">{feedbackMessage.text}</span>
           </div>
           <button
             onClick={() => setFeedbackMessage(null)}
-            className="text-xs px-2.5 py-1 rounded-lg bg-black/30 hover:bg-black/50 text-slate-300"
+            className="text-xs px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-black/30 hover:bg-slate-300 dark:hover:bg-black/50 text-slate-700 dark:text-slate-300"
           >
             Dismiss
           </button>
@@ -232,20 +232,20 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
       )}
 
       {/* Top Action Bar (Hidden in Print) */}
-      <div className="no-print rounded-3xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-md shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div className="no-print rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 p-5 backdrop-blur-md shadow-xl dark:shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 transition-colors">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <FileText className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>IB 10-Bullet Master Plan & Customization Hub</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                   Timer Source
                 </span>
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Everything entered here immediately configures your Quadrant, Chevron, and Focus timers.
               </p>
             </div>
@@ -257,20 +257,20 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           {/* Upload CSV */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
             title="Upload previously exported CSV plan"
           >
-            <Upload className="h-3.5 w-3.5 text-amber-400" />
+            <Upload className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
             <span>Upload CSV</span>
           </button>
 
           {/* Download CSV */}
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
             title="Download this plan as CSV for editing or future sessions"
           >
-            <Download className="h-3.5 w-3.5 text-emerald-400" />
+            <Download className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Download CSV</span>
           </button>
 
@@ -287,7 +287,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           {/* Reset to Default */}
           <button
             onClick={handleResetToDefault}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="Reset to default Orwell & Fairey example"
           >
             <RefreshCw className="h-4 w-4" />
@@ -296,22 +296,22 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
       </div>
 
       {/* 10-Minute Total Calculator Banner */}
-      <div className={`no-print rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+      <div className={`no-print rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-colors ${
         isExactTenMinutes
-          ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
-          : 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+          : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300'
       }`}>
         <div className="flex items-center gap-3">
           {isExactTenMinutes ? (
-            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           ) : (
-            <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
           )}
           <div>
             <span className="font-bold text-sm">
               Planned Total Oral Duration: {Math.floor(totalSeconds / 60)}m {(totalSeconds % 60).toString().padStart(2, '0')}s
             </span>
-            <span className="text-slate-400 ml-2">
+            <span className="text-slate-600 dark:text-slate-400 ml-2">
               {isExactTenMinutes
                 ? '· Exactly matches the strict 10-minute IB requirement (600 seconds)!'
                 : deltaMinutes > 0
@@ -322,12 +322,12 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-black/40 px-3 py-1 font-mono-nums font-bold">
+          <div className="rounded-lg bg-slate-200/80 dark:bg-black/40 px-3 py-1 font-mono-nums font-bold text-slate-800 dark:text-slate-200">
             {bullets.length} / 10 Bullets Used
           </div>
           <button
             onClick={() => setShowTimingCustomizer(!showTimingCustomizer)}
-            className="flex items-center gap-1 text-[11px] underline underline-offset-2 text-slate-300 hover:text-white"
+            className="flex items-center gap-1 text-[11px] underline underline-offset-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
           >
             <Sliders className="h-3 w-3" />
             <span>{showTimingCustomizer ? 'Collapse Timer Breakdown' : 'Expand Timer Breakdown'}</span>
@@ -337,23 +337,23 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
 
       {/* TIMING & STRUCTURE SECTION (The Source for the Timers) */}
       {showTimingCustomizer && (
-        <div className="no-print rounded-3xl border border-slate-800 bg-slate-900/60 p-5 sm:p-6 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+        <div className="no-print rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 sm:p-6 space-y-5 shadow-sm transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 gap-3">
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sliders className="h-4 w-4 text-amber-400" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Sliders className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span>Timer Structure & Preset Selection</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Choose an IB structural outline or adjust seconds per segment. All changes reflect live on Quadrant and Chevron views.
               </p>
             </div>
 
             <button
               onClick={handleSwapTexts}
-              className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold transition-colors"
             >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-400" />
+              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
               <span>Swap Text A ⇄ Text B Order</span>
             </button>
           </div>
@@ -366,17 +366,17 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                 onClick={() => handleApplyPreset(preset.id)}
                 className={`text-left p-3.5 rounded-2xl border transition-all ${
                   studentData.activeTemplateId === preset.id
-                    ? 'border-amber-400 bg-amber-500/10 text-white shadow-lg ring-1 ring-amber-400/40'
-                    : 'border-slate-800 bg-slate-950/70 text-slate-300 hover:border-slate-700'
+                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-500/10 text-slate-900 dark:text-white shadow-md ring-1 ring-amber-400/40'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-white">{preset.name}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 font-mono">
+                  <span className="font-bold text-xs text-slate-900 dark:text-white">{preset.name}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-amber-700 dark:text-amber-300 font-mono font-semibold">
                     {preset.badge}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                   {preset.description}
                 </p>
               </button>
@@ -385,7 +385,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
 
           {/* Segment Duration Adjuster */}
           <div className="space-y-2 pt-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Sequence Segments & Planned Seconds
             </span>
 
@@ -393,14 +393,14 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               {(studentData.customSegments || []).map((seg, idx) => (
                 <div
                   key={seg.id}
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/80 gap-2"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 gap-2"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-[10px] font-bold text-slate-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-800 dark:text-slate-200">
                         {idx + 1}
                       </span>
-                      <h4 className="text-xs font-bold text-white truncate max-w-[140px]">
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[140px]">
                         {seg.title}
                       </h4>
                     </div>
@@ -410,7 +410,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+                    <div className="flex items-center gap-1 bg-white dark:bg-slate-900 px-2 py-1 rounded border border-slate-200 dark:border-slate-800">
                       <input
                         type="number"
                         step={15}
@@ -418,15 +418,15 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                         max={360}
                         value={seg.durationSeconds}
                         onChange={(e) => handleDurationChange(idx, parseInt(e.target.value) || 60)}
-                        className="w-10 bg-transparent text-right font-mono-nums text-xs font-bold text-amber-300 focus:outline-none"
+                        className="w-10 bg-transparent text-right font-mono-nums text-xs font-bold text-amber-600 dark:text-amber-300 focus:outline-none"
                       />
-                      <span className="text-[10px] text-slate-500">s</span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500">s</span>
                     </div>
 
                     <button
                       onClick={() => handleMoveSegment(idx, 'up')}
                       disabled={idx === 0}
-                      className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-20"
+                      className="p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 disabled:opacity-20"
                       title="Move segment earlier"
                     >
                       <ArrowUp className="h-3 w-3" />
@@ -434,7 +434,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                     <button
                       onClick={() => handleMoveSegment(idx, 'down')}
                       disabled={idx === (studentData.customSegments || []).length - 1}
-                      className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-20"
+                      className="p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 disabled:opacity-20"
                       title="Move segment later"
                     >
                       <ArrowDown className="h-3 w-3" />
@@ -448,75 +448,75 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
       )}
 
       {/* MASTER 10-BULLET FORM & CANDIDATE RECORD CARD (Printable + Screen) */}
-      <div className="mx-auto max-w-4xl rounded-3xl border border-slate-800 bg-slate-950 p-6 sm:p-10 shadow-2xl print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div className="mx-auto max-w-4xl rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 sm:p-10 shadow-xl dark:shadow-2xl print:border-none print:shadow-none print:p-0 print:bg-white print:text-black transition-colors">
         
         {/* IB Official Header */}
-        <div className="border-b-2 border-slate-700 print:border-black pb-5 mb-6">
+        <div className="border-b-2 border-slate-200 dark:border-slate-700 print:border-black pb-5 mb-6">
           <div className="flex justify-between items-start">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-400 print:text-black">
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 print:text-black">
                 International Baccalaureate · Diploma Programme
               </span>
-              <h1 className="font-display text-2xl font-bold text-white print:text-black mt-1">
+              <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white print:text-black mt-1">
                 Individual Oral Outline Form (10-Minute Assessment)
               </h1>
-              <p className="text-xs text-slate-400 print:text-gray-700">
+              <p className="text-xs text-slate-500 dark:text-slate-400 print:text-gray-700">
                 Language A: Language and Literature · Criteria A, B, C, D
               </p>
             </div>
             
             <div className="text-right text-xs space-y-1">
-              <div className="font-mono text-slate-300 print:text-black font-semibold">
+              <div className="font-mono text-slate-700 dark:text-slate-300 print:text-black font-semibold">
                 Form: IO-OUTLINE-10
               </div>
-              <div className="text-amber-400 print:text-gray-600 text-[11px] font-bold">
+              <div className="text-amber-600 dark:text-amber-400 print:text-gray-600 text-[11px] font-bold">
                 Max 10 Bullet Points
               </div>
             </div>
           </div>
 
           {/* Student metadata fields (Editable) */}
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs bg-slate-900/60 print:bg-gray-100 p-3.5 rounded-xl print:rounded-none border border-slate-800 print:border-gray-300">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 print:bg-gray-100 p-3.5 rounded-xl print:rounded-none border border-slate-200 dark:border-slate-800 print:border-gray-300 transition-colors">
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Candidate Name</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 print:text-gray-600 block">Candidate Name</span>
               <input
                 type="text"
                 value={studentData.studentName || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, studentName: e.target.value })}
                 placeholder="Candidate Full Name"
-                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
+                className="w-full bg-transparent font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
               />
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Candidate Session Number</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 print:text-gray-600 block">Candidate Session Number</span>
               <input
                 type="text"
                 value={studentData.candidateNumber || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, candidateNumber: e.target.value })}
                 placeholder="e.g. 001234-0042"
-                className="w-full bg-transparent font-mono font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
+                className="w-full bg-transparent font-mono font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
               />
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">School Name</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 print:text-gray-600 block">School Name</span>
               <input
                 type="text"
                 value={studentData.schoolName || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, schoolName: e.target.value })}
                 placeholder="School Name"
-                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
+                className="w-full bg-transparent font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
               />
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Date of Oral</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 print:text-gray-600 block">Date of Oral</span>
               <input
                 type="date"
                 value={studentData.examDate || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, examDate: e.target.value })}
-                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none"
+                className="w-full bg-transparent font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none"
               />
             </div>
           </div>
@@ -525,17 +525,17 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           <div className="mt-4 space-y-3 text-xs">
             
             {/* Global Issue & Field of Inquiry */}
-            <div className="p-3.5 rounded-xl bg-slate-900/60 print:bg-gray-50 border border-slate-800 print:border-gray-300 space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 print:bg-gray-50 border border-slate-200 dark:border-slate-800 print:border-gray-300 space-y-2 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-amber-400 print:text-black">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 print:text-black">
                   Global Issue Statement
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-slate-400 print:text-gray-600">Field of Inquiry:</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 print:text-gray-600">Field of Inquiry:</span>
                   <select
                     value={studentData.globalIssueField || GLOBAL_ISSUE_FIELDS[0]}
                     onChange={(e) => onUpdateStudentData({ ...studentData, globalIssueField: e.target.value })}
-                    className="rounded bg-slate-950 print:bg-white text-slate-200 print:text-black border border-slate-700 print:border-gray-300 text-xs px-2 py-0.5 focus:outline-none"
+                    className="rounded bg-white dark:bg-slate-950 print:bg-white text-slate-800 dark:text-slate-200 print:text-black border border-slate-300 dark:border-slate-700 print:border-gray-300 text-xs px-2 py-0.5 focus:outline-none"
                   >
                     {GLOBAL_ISSUE_FIELDS.map((f) => (
                       <option key={f} value={f}>{f}</option>
@@ -549,13 +549,13 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                 value={studentData.globalIssue || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, globalIssue: e.target.value })}
                 placeholder="State your precise Global Issue connecting both works..."
-                className="w-full bg-transparent text-sm font-medium text-slate-100 print:text-black focus:outline-none resize-none leading-relaxed placeholder-slate-600"
+                className="w-full bg-transparent text-sm font-medium text-slate-900 dark:text-slate-100 print:text-black focus:outline-none resize-none leading-relaxed placeholder-slate-400 dark:placeholder-slate-600"
               />
             </div>
 
             {/* Working Thesis Statement */}
-            <div className="p-3 rounded-xl bg-slate-900/40 print:bg-gray-50 border border-slate-800 print:border-gray-200">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 print:text-gray-600 block mb-1">
+            <div className="p-3 rounded-xl bg-slate-50/70 dark:bg-slate-900/40 print:bg-gray-50 border border-slate-200 dark:border-slate-800 print:border-gray-200 transition-colors">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 print:text-gray-600 block mb-1">
                 Working Thesis Statement (How each work presents the GI)
               </label>
               <textarea
@@ -563,7 +563,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                 value={studentData.thesisStatement || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, thesisStatement: e.target.value })}
                 placeholder="Answer: How does each work uniquely construct meaning regarding the Global Issue?"
-                className="w-full bg-transparent text-xs text-slate-200 print:text-gray-800 focus:outline-none resize-none leading-relaxed placeholder-slate-600"
+                className="w-full bg-transparent text-xs text-slate-800 dark:text-slate-200 print:text-gray-800 focus:outline-none resize-none leading-relaxed placeholder-slate-400 dark:placeholder-slate-600"
               />
             </div>
 
@@ -571,12 +571,12 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               
               {/* Text A (Literary) */}
-              <div className="p-3.5 rounded-xl bg-blue-500/10 print:bg-gray-50 border border-blue-500/30 print:border-gray-300 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-400 print:text-black block">
+              <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-500/10 print:bg-gray-50 border border-blue-200 dark:border-blue-500/30 print:border-gray-300 space-y-2 transition-colors">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 print:text-black block">
                   Text A: Literary Work
                 </span>
                 <div>
-                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Work Title & Author</label>
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 print:text-gray-600 block">Work Title & Author</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -586,7 +586,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                         textA: { ...studentData.textA, title: e.target.value }
                       })}
                       placeholder="Title"
-                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                     <input
                       type="text"
@@ -596,13 +596,13 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                         textA: { ...studentData.textA, creator: e.target.value }
                       })}
                       placeholder="Author"
-                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Extract Reference (approx 40 lines)</label>
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 print:text-gray-600 block">Extract Reference (approx 40 lines)</label>
                   <input
                     type="text"
                     value={studentData.textA?.extractDetails || ''}
@@ -611,18 +611,18 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                       textA: { ...studentData.textA, extractDetails: e.target.value }
                     })}
                     placeholder="e.g. Part I, Chapter 1 (Lines 24–65)"
-                    className="w-full bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 text-xs text-slate-200 print:text-black focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                   />
                 </div>
               </div>
 
               {/* Text B (Non-Literary) */}
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 print:bg-gray-50 border border-emerald-500/30 print:border-gray-300 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 print:text-black block">
+              <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 print:bg-gray-50 border border-emerald-200 dark:border-emerald-500/30 print:border-gray-300 space-y-2 transition-colors">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 print:text-black block">
                   Text B: Non-Literary Body of Work (BOW)
                 </span>
                 <div>
-                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Body of Work Title & Creator</label>
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 print:text-gray-600 block">Body of Work Title & Creator</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -632,7 +632,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                         textB: { ...studentData.textB, title: e.target.value }
                       })}
                       placeholder="BOW Title"
-                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                     <input
                       type="text"
@@ -642,13 +642,13 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                         textB: { ...studentData.textB, creator: e.target.value }
                       })}
                       placeholder="Creator / Artist"
-                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Extract Reference (Single Image/Text)</label>
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 print:text-gray-600 block">Extract Reference (Single Image/Text)</label>
                   <input
                     type="text"
                     value={studentData.textB?.extractDetails || ''}
@@ -657,7 +657,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                       textB: { ...studentData.textB, extractDetails: e.target.value }
                     })}
                     placeholder="e.g. Screenprint #2 (2012)"
-                    className="w-full bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 text-xs text-slate-200 print:text-black focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                   />
                 </div>
               </div>
@@ -668,11 +668,11 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
 
         {/* 10 BULLETS LIST */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400 print:text-gray-600 pb-1">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 print:text-gray-600 pb-1">
             <span className="font-bold uppercase tracking-wider text-[11px]">
               Candidate Speaking Points (Maximum 10 Allowed)
             </span>
-            <span className="text-[11px] no-print text-amber-400/90 font-medium">
+            <span className="text-[11px] no-print text-amber-600 dark:text-amber-400/90 font-medium">
               Keep under ~15–20 words per bullet (no full essays/scripts)
             </span>
           </div>
@@ -697,11 +697,11 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
             return (
               <div
                 key={idx}
-                className="group relative flex items-start gap-3 p-3 rounded-2xl border border-slate-800 print:border-gray-300 bg-slate-900/50 print:bg-white transition-all hover:border-slate-700"
+                className="group relative flex items-start gap-3 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 print:border-gray-300 bg-slate-50/70 dark:bg-slate-900/50 print:bg-white transition-all hover:border-slate-300 dark:hover:border-slate-700"
               >
                 {/* Bullet number badge */}
                 <div className="flex flex-col items-center shrink-0">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/10 print:bg-gray-200 text-amber-300 print:text-black font-mono text-xs font-bold">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/10 print:bg-gray-200 text-amber-700 dark:text-amber-300 print:text-black font-mono text-xs font-bold">
                     {idx + 1}
                   </div>
                   <span className="no-print text-[9px] uppercase font-bold text-slate-500 mt-1 text-center max-w-[60px] leading-tight">
@@ -716,17 +716,17 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                     value={bullet}
                     onChange={(e) => handleUpdateBullet(idx, e.target.value)}
                     placeholder={`Bullet Point #${idx + 1} memory cue...`}
-                    className="w-full bg-transparent text-sm text-slate-100 print:text-black placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
+                    className="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 print:text-black placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
                   />
                   
                   {/* Word count & suggestion */}
                   <div className="no-print flex items-center justify-between text-[11px] text-slate-500 pt-1">
                     <span>
-                      {wordCount} words {isTooLong && <span className="text-rose-400 font-semibold">(Warning: too long for IB memory prompt)</span>}
+                      {wordCount} words {isTooLong && <span className="text-rose-500 dark:text-rose-400 font-semibold">(Warning: too long for IB memory prompt)</span>}
                     </span>
                     <button
                       onClick={() => handleRemoveBullet(idx)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-opacity flex items-center gap-1"
+                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-opacity flex items-center gap-1"
                       title="Delete bullet"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -742,7 +742,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           {bullets.length < 10 && (
             <button
               onClick={handleAddBullet}
-              className="no-print w-full py-3.5 rounded-2xl border border-dashed border-slate-700 hover:border-amber-500 hover:bg-amber-500/5 text-slate-400 hover:text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
+              className="no-print w-full py-3.5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 hover:bg-amber-500/5 text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
             >
               <Plus className="h-4 w-4" />
               <span>Add Bullet Point ({bullets.length + 1} of 10)</span>
@@ -751,14 +751,14 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
         </div>
 
         {/* Declaration signature box for official print */}
-        <div className="mt-8 pt-6 border-t border-slate-800 print:border-gray-400 text-xs text-slate-400 print:text-gray-700">
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 print:border-gray-400 text-xs text-slate-500 dark:text-slate-400 print:text-gray-700">
           <div className="grid grid-cols-2 gap-8 print:grid">
             <div className="space-y-6">
               <p className="text-[11px] leading-relaxed">
                 Candidate Declaration: I confirm that this outline sheet consists of 10 or fewer bullet points, and that I will adhere to the strict 10-minute presentation guidelines without continuous prose.
               </p>
-              <div className="border-b border-slate-700 print:border-black pt-4">
-                <span className="text-[10px] uppercase text-slate-500 print:text-gray-500">Candidate Signature</span>
+              <div className="border-b border-slate-300 dark:border-slate-700 print:border-black pt-4">
+                <span className="text-[10px] uppercase text-slate-400 dark:text-slate-500 print:text-gray-500">Candidate Signature</span>
               </div>
             </div>
 
@@ -766,8 +766,8 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               <p className="text-[11px] leading-relaxed">
                 Teacher Verification: I confirm that the candidate has prepared 10 bullet points and unannotated extracts in compliance with IB DP Language A regulations.
               </p>
-              <div className="border-b border-slate-700 print:border-black pt-4">
-                <span className="text-[10px] uppercase text-slate-500 print:text-gray-500">Teacher / Invigilator Signature</span>
+              <div className="border-b border-slate-300 dark:border-slate-700 print:border-black pt-4">
+                <span className="text-[10px] uppercase text-slate-400 dark:text-slate-500 print:text-gray-500">Teacher / Invigilator Signature</span>
               </div>
             </div>
           </div>

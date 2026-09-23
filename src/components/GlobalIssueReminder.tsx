@@ -57,30 +57,30 @@ export const GlobalIssueReminder: React.FC<GlobalIssueReminderProps> = ({
       )}
 
       {/* Persistent Global Issue Anchor Bar */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-3.5 backdrop-blur-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-3.5 backdrop-blur-sm shadow-sm transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
           <div className="flex items-start md:items-center gap-3 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
               <Globe className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <span className="font-semibold text-indigo-400 uppercase tracking-wider">Target Global Issue</span>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Target Global Issue</span>
                 <span aria-hidden="true">·</span>
                 <span className="truncate">{globalIssueField}</span>
               </div>
-              <p className="text-sm font-medium text-slate-100 truncate max-w-2xl" title={globalIssue}>
-                {globalIssue || 'Enter your Global Issue in Customize & Plan...'}
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-2xl" title={globalIssue}>
+                {globalIssue || 'Enter your Global Issue in 10-Bullet Plan & Form...'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs shrink-0 self-end md:self-center">
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-950/70 px-2.5 py-1 border border-slate-800 text-[11px] text-slate-400">
-              <Sparkles className="h-3 w-3 text-amber-400" />
-              <span>Next GI check-in in <span className="font-mono-nums font-semibold text-amber-300">{secondsUntilNextCheckin}s</span></span>
+            <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/70 px-2.5 py-1 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
+              <Sparkles className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+              <span>Next check-in in <span className="font-mono-nums font-bold text-amber-600 dark:text-amber-300">{secondsUntilNextCheckin}s</span></span>
             </div>
-            <div className="hidden xl:flex items-center gap-1 text-[11px] text-rose-400/90 font-medium">
+            <div className="hidden xl:flex items-center gap-1 text-[11px] text-rose-600 dark:text-rose-400/90 font-medium">
               <span>⚖️ No text comparison</span>
             </div>
           </div>
