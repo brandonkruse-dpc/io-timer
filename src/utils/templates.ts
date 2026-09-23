@@ -423,7 +423,85 @@ export const DEFAULT_STUDENT_DATA: StudentIOData = {
   includeDiscussion: false,
 };
 
-const STORAGE_KEY = 'ib_oral_visual_timer_data_v1';
+export const STORAGE_KEY = 'ib_oral_visual_timer_data_v1';
+
+export function getBulletIndicesForSegment(segment: Segment): number[] {
+  switch (segment.type) {
+    case 'intro':
+      return [0, 1];
+    case 'textA_work':
+      return [2];
+    case 'textA_extract':
+      return [3, 4];
+    case 'textA_combined':
+      return [2, 3, 4];
+    case 'textB_work':
+      return [5];
+    case 'textB_extract':
+      return [6, 7];
+    case 'textB_combined':
+      return [5, 6, 7];
+    case 'conclusion':
+      return [8, 9];
+    case 'discussion':
+    default:
+      return [];
+  }
+}
+
+export function getBulletPhaseLabel(bulletIndex: number): string {
+  switch (bulletIndex) {
+    case 0:
+      return 'Intro: Global Issue Definition';
+    case 1:
+      return 'Intro: Works & Thesis Statement';
+    case 2:
+      return 'Text A: Overall Literary Work';
+    case 3:
+      return 'Text A: Extract Micro-Analysis (Choice 1)';
+    case 4:
+      return 'Text A: Extract Micro-Analysis (Choice 2)';
+    case 5:
+      return 'Text B: Overall Non-Lit Body of Work';
+    case 6:
+      return 'Text B: Extract Micro-Analysis (Choice 1)';
+    case 7:
+      return 'Text B: Extract Micro-Analysis (Choice 2)';
+    case 8:
+      return 'Synthesis: Global Issue Exploration';
+    case 9:
+      return 'Conclusion: Final Evaluation & Takeaway';
+    default:
+      return `Speaking Point #${bulletIndex + 1}`;
+  }
+}
+
+export function getBulletMappingDescription(bulletIndex: number): { quadrant: string; chevron: string } {
+  switch (bulletIndex) {
+    case 0:
+      return { quadrant: 'Center-Top (Intro)', chevron: 'Intro (1 min)' };
+    case 1:
+      return { quadrant: 'Center-Top (Intro)', chevron: 'Intro (1 min)' };
+    case 2:
+      return { quadrant: 'Top-Left (Text A Overall Work)', chevron: 'Literary Work (Feature 1)' };
+    case 3:
+      return { quadrant: 'Bottom-Left (Text A Extract)', chevron: 'Literary Work (Feature 2)' };
+    case 4:
+      return { quadrant: 'Bottom-Left (Text A Extract)', chevron: 'Literary Work (Feature 3)' };
+    case 5:
+      return { quadrant: 'Top-Right (Text B Overall BOW)', chevron: 'Non-Lit BOW (Feature 4)' };
+    case 6:
+      return { quadrant: 'Bottom-Right (Text B Extract)', chevron: 'Non-Lit BOW (Feature 5)' };
+    case 7:
+      return { quadrant: 'Bottom-Right (Text B Extract)', chevron: 'Non-Lit BOW (Feature 6)' };
+    case 8:
+      return { quadrant: 'Center-Bottom (Conclusion)', chevron: 'Conclusion (Synthesis)' };
+    case 9:
+      return { quadrant: 'Center-Bottom (Conclusion)', chevron: 'Conclusion (Evaluation)' };
+    default:
+      return { quadrant: 'General', chevron: 'General' };
+  }
+}
 
 export function loadStudentData(): StudentIOData {
   if (typeof window === 'undefined') return DEFAULT_STUDENT_DATA;

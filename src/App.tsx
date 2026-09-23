@@ -190,6 +190,24 @@ export default function App() {
     setSecondsUntilNextCheckin(checkinInterval);
   }, [checkinInterval]);
 
+  const handleUpdateStudentData = useCallback((newData: StudentIOData) => {
+    setStudentData(newData);
+    saveStudentData(newData);
+  }, []);
+
+  const handleUpdateBullet = useCallback((index: number, text: string) => {
+    setStudentData((prev) => {
+      const newBullets = [...prev.bullets];
+      while (newBullets.length <= index) {
+        newBullets.push('');
+      }
+      newBullets[index] = text;
+      const updated = { ...prev, bullets: newBullets };
+      saveStudentData(updated);
+      return updated;
+    });
+  }, []);
+
   const handleSelectSegment = useCallback((index: number) => {
     if (index >= 0 && index < segments.length) {
       setActiveSegmentIndex(index);
@@ -278,6 +296,8 @@ export default function App() {
             segmentElapsedSeconds={segmentElapsedSeconds}
             isRunning={isRunning}
             studentData={studentData}
+            onUpdateBullet={handleUpdateBullet}
+            onUpdateStudentData={handleUpdateStudentData}
           />
         )}
 
@@ -291,6 +311,8 @@ export default function App() {
             isRunning={isRunning}
             studentData={studentData}
             includeDiscussion={studentData.includeDiscussion}
+            onUpdateBullet={handleUpdateBullet}
+            onUpdateStudentData={handleUpdateStudentData}
           />
         )}
 
@@ -310,6 +332,8 @@ export default function App() {
             studentData={studentData}
             isCheckinAlertActive={isCheckinAlertActive}
             onDismissCheckinAlert={() => setIsCheckinAlertActive(false)}
+            onUpdateBullet={handleUpdateBullet}
+            onUpdateStudentData={handleUpdateStudentData}
           />
         )}
 
@@ -317,10 +341,7 @@ export default function App() {
         {activeTab === 'outline' && (
           <TenBulletSheet
             studentData={studentData}
-            onUpdateStudentData={(newData) => {
-              setStudentData(newData);
-              saveStudentData(newData);
-            }}
+            onUpdateStudentData={handleUpdateStudentData}
             onResetTimer={handleResetTimer}
           />
         )}

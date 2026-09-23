@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { StudentIOData, Segment, TemplateId } from '../types';
-import { TEMPLATE_PRESETS, GLOBAL_ISSUE_FIELDS, saveStudentData, DEFAULT_STUDENT_DATA } from '../utils/templates';
+import { TEMPLATE_PRESETS, GLOBAL_ISSUE_FIELDS, saveStudentData, DEFAULT_STUDENT_DATA, getBulletMappingDescription } from '../utils/templates';
 import { exportPlanToCSV, importPlanFromCSV } from '../utils/csv';
 import {
   FileText,
@@ -672,27 +672,36 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
             <span className="font-bold uppercase tracking-wider text-[11px]">
               Candidate Speaking Points (Maximum 10 Allowed)
             </span>
-            <span className="text-[11px] no-print text-amber-700 dark:text-amber-400/90 font-semibold">
-              Keep under ~15–20 words per bullet (no full essays/scripts)
+            <span className="text-[11px] no-print text-amber-700 dark:text-amber-400 font-semibold">
+              Live two-way sync with Quadrant, Chevron, and Rehearsal views
             </span>
           </div>
 
           {bullets.map((bullet, idx) => {
             const wordCount = bullet.trim() ? bullet.trim().split(/\s+/).length : 0;
             const isTooLong = wordCount > 25;
+            const mapping = getBulletMappingDescription(idx);
 
             // Suggested oral phase tagging
             const phaseHint = idx === 0 
-              ? 'Intro: Global Issue' 
+              ? 'Intro: GI' 
               : idx === 1 
-                ? 'Intro: Works & Thesis'
-                : idx >= 2 && idx <= 4
-                  ? 'Text A Analysis'
-                  : idx >= 5 && idx <= 7
-                    ? 'Text B Analysis'
-                    : idx === 8
-                      ? 'GI Synthesis'
-                      : 'Conclusion';
+                ? 'Intro: Thesis'
+                : idx === 2
+                  ? 'Text A: Work'
+                  : idx === 3
+                    ? 'Text A: Micro 1'
+                    : idx === 4
+                      ? 'Text A: Micro 2'
+                      : idx === 5
+                        ? 'Text B: BOW'
+                        : idx === 6
+                          ? 'Text B: Micro 1'
+                          : idx === 7
+                            ? 'Text B: Micro 2'
+                            : idx === 8
+                              ? 'GI Synthesis'
+                              : 'Conclusion';
 
             return (
               <div
@@ -704,13 +713,19 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/10 print:bg-gray-200 text-amber-700 dark:text-amber-300 print:text-black font-mono text-xs font-bold">
                     {idx + 1}
                   </div>
-                  <span className="no-print text-[9px] uppercase font-bold text-slate-500 mt-1 text-center max-w-[60px] leading-tight">
+                  <span className="no-print text-[9px] uppercase font-bold text-slate-500 mt-1 text-center max-w-[64px] leading-tight">
                     {phaseHint}
                   </span>
                 </div>
 
                 {/* Textarea for bullet */}
                 <div className="flex-1 min-w-0">
+                  <div className="no-print flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-1 font-medium">
+                    <span className="truncate">
+                      📍 Quadrant: <strong className="text-slate-700 dark:text-slate-300">{mapping.quadrant}</strong> · Chevron: <strong className="text-slate-700 dark:text-slate-300">{mapping.chevron}</strong>
+                    </span>
+                  </div>
+
                   <textarea
                     rows={2}
                     value={bullet}

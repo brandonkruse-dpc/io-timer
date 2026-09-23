@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData } from '../types';
-import { Check, Sparkles, AlertCircle } from 'lucide-react';
+import { Check, Sparkles, AlertCircle, Edit3 } from 'lucide-react';
 
 interface ChevronTimelineViewProps {
   segments: Segment[];
@@ -10,6 +10,8 @@ interface ChevronTimelineViewProps {
   isRunning: boolean;
   studentData: StudentIOData;
   includeDiscussion: boolean;
+  onUpdateBullet?: (index: number, text: string) => void;
+  onUpdateStudentData?: (newData: StudentIOData) => void;
 }
 
 export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
@@ -20,6 +22,8 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
   isRunning,
   studentData,
   includeDiscussion,
+  onUpdateBullet,
+  onUpdateStudentData,
 }) => {
   // Checkbox state for features during presentation rehearsal
   const [checkedFeatures, setCheckedFeatures] = useState<Record<string, boolean>>({});
@@ -35,98 +39,153 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Philpot items mapping
+  const handleBulletChange = (idx: number, text: string) => {
+    if (onUpdateBullet) {
+      onUpdateBullet(idx, text);
+    } else if (onUpdateStudentData) {
+      const newBullets = [...studentData.bullets];
+      while (newBullets.length <= idx) {
+        newBullets.push('');
+      }
+      newBullets[idx] = text;
+      onUpdateStudentData({ ...studentData, bullets: newBullets });
+    }
+  };
+
+  const getWordCount = (str?: string) => {
+    if (!str || !str.trim()) return 0;
+    return str.trim().split(/\s+/).length;
+  };
+
+  // Philpot items mapping directly connected to user's 10-bullet plan
   const chevronItems = [
     {
       id: 'c_intro',
       timeLabel: '1 min',
       timeDurationSec: 60,
       title: 'Introduce global issue & works',
-      bullets: [
-        'What is the global issue (GI)? Why does it matter?',
-        `How is your GI presented in your literary work (${studentData.textA.title}) and non-lit BOW (${studentData.textB.title})? (Answer = thesis statement)`,
-      ],
-      colorBg: 'from-[#8B1E1E] to-[#A02828]',
-      badgeColor: 'bg-[#E56A20]',
       segmentIdx: 0,
+      badgeColor: 'bg-[#E56A20]',
+      bullets: [
+        {
+          bulletIdx: 0,
+          label: 'Bullet #1 · Global Issue Definition',
+          placeholder: 'Define Global Issue clearly, transnational significance, and why it matters...',
+          promptGuide: 'What is the global issue (GI)? Why does it matter across cultures?',
+        },
+        {
+          bulletIdx: 1,
+          label: 'Bullet #2 · Works & Thesis Statement',
+          placeholder: `How is the GI presented in ${studentData.textA.title} and ${studentData.textB.title}? State your thesis...`,
+          promptGuide: 'Identify both works and state how each uniquely explores the Global Issue (no direct comparison).',
+        },
+      ],
     },
     {
       id: 'c_lit',
       timeLabel: '4 min',
       timeDurationSec: 240,
       title: 'Literary work and passage',
+      segmentIdx: 1,
+      badgeColor: 'bg-[#E56A20]',
       features: [
         {
           num: 1,
+          bulletIdx: 2,
           label: 'Feature 1',
+          bulletLabel: 'Bullet #3 · Overall Literary Work',
+          placeholder: 'Macro authorial choices across the entire literary work, motifs, and relevance to GI...',
           steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
         },
         {
           num: 2,
+          bulletIdx: 3,
           label: 'Feature 2',
+          bulletLabel: 'Bullet #4 · Literary Extract (Micro 1)',
+          placeholder: 'Close reading of extract: specific diction, imagery, syntax, tone, and link to GI...',
           steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
         },
         {
           num: 3,
+          bulletIdx: 4,
           label: 'Feature 3',
+          bulletLabel: 'Bullet #5 · Literary Extract (Micro 2)',
+          placeholder: 'Second extract technique: structural shifts, characterization, authorial craft, and GI...',
           steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
         },
       ],
-      colorBg: 'from-[#8B1E1E] to-[#A02828]',
-      badgeColor: 'bg-[#E56A20]',
-      segmentIdx: 1,
     },
     {
       id: 'c_nonlit',
       timeLabel: '4 min',
       timeDurationSec: 240,
       title: 'Non-literary BOW and passage',
+      segmentIdx: 2,
+      badgeColor: 'bg-[#E56A20]',
       features: [
         {
           num: 4,
+          bulletIdx: 5,
           label: 'Feature 4',
+          bulletLabel: 'Bullet #6 · Overall Non-Lit Body of Work',
+          placeholder: 'Broader portfolio/campaign, recurring visual or rhetorical strategies, audience, and GI...',
           steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
         },
         {
           num: 5,
+          bulletIdx: 6,
           label: 'Feature 5',
+          bulletLabel: 'Bullet #7 · Non-Lit Extract (Micro 1)',
+          placeholder: 'Extract micro-analysis: visual hierarchy, typography, composition, rhetorical appeal, and GI...',
           steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
         },
         {
           num: 6,
+          bulletIdx: 7,
           label: 'Feature 6',
+          bulletLabel: 'Bullet #8 · Non-Lit Extract (Micro 2)',
+          placeholder: 'Second extract choice: framing, color, ethos/pathos/logos, immediate effect on viewer, and GI...',
           steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
         },
       ],
-      colorBg: 'from-[#8B1E1E] to-[#A02828]',
-      badgeColor: 'bg-[#E56A20]',
-      segmentIdx: 2,
     },
     {
       id: 'c_conclusion',
       timeLabel: '1 min',
       timeDurationSec: 60,
       title: 'Conclusion',
-      bullets: [
-        'How do the BOW and Lit work present the GI similarly and differently?',
-        'How effective are the writers in achieving their aims regarding the GI?',
-      ],
-      colorBg: 'from-[#8B1E1E] to-[#A02828]',
-      badgeColor: 'bg-[#E56A20]',
       segmentIdx: 3,
+      badgeColor: 'bg-[#E56A20]',
+      bullets: [
+        {
+          bulletIdx: 8,
+          label: 'Bullet #9 · Synthesis of Both Works',
+          placeholder: 'How do the BOW and Lit work present the GI similarly and differently in perspective?',
+          promptGuide: 'Synthesize the unique approaches of both creators without direct point-by-point comparison.',
+        },
+        {
+          bulletIdx: 9,
+          label: 'Bullet #10 · Evaluation & Final Perspective',
+          placeholder: 'How effective are both creators? Final authoritative statement on the enduring relevance of the GI...',
+          promptGuide: 'Evaluate creator efficacy and deliver a memorable closing takeaway before 10:00.',
+        },
+      ],
     },
     ...(includeDiscussion ? [{
       id: 'c_discussion',
       timeLabel: '5 min',
       timeDurationSec: 300,
       title: 'Discussion (Teacher Follow-up)',
-      bullets: [
-        '“You said... Could you elaborate on...?”',
-        '“What are other similarities and differences between the work and BOW?”',
-      ],
-      colorBg: 'from-[#8B1E1E] to-[#A02828]',
-      badgeColor: 'bg-[#E56A20]',
       segmentIdx: 4,
+      badgeColor: 'bg-[#E56A20]',
+      bullets: [
+        {
+          bulletIdx: -1,
+          label: 'Teacher Follow-up & Discussion Guidance',
+          placeholder: 'Notes on possible teacher questions: contextual nuances, subtle ambiguities, or authorial choices...',
+          promptGuide: '“You mentioned... could you elaborate on...?” Listen carefully and refer back to extracts.',
+        },
+      ],
     }] : []),
   ];
 
@@ -140,6 +199,16 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
         <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-0.5">
           Philpot Education Outline Method 1 · 10-Minute Structural Flow
         </p>
+      </div>
+
+      {/* Synchronized Practice Banner */}
+      <div className="no-print rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/90 dark:bg-amber-950/30 p-3.5 flex items-center justify-between gap-3 text-xs text-amber-950 dark:text-amber-200 shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <Edit3 className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />
+          <p className="font-medium">
+            <strong className="font-bold">Two-Way Practice Editing:</strong> The text fields inside each chevron correspond directly to your <strong className="font-bold">10 Bullet Points</strong>. Any edits you make here while practicing will instantly update your official 10-Bullet Form and all other views.
+          </p>
+        </div>
       </div>
 
       {/* Chevrons Container - Full width matching header */}
@@ -212,16 +281,51 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                   </div>
                 )}
 
-                {/* Bullets view (Intro & Conclusion) */}
+                {/* Bullets view (Intro, Conclusion & Discussion) */}
                 {item.bullets && (
-                  <ul className="space-y-2.5">
-                    {item.bullets.map((bullet, bIdx) => (
-                      <li key={bIdx} className="flex items-start gap-2.5 text-sm text-slate-800 dark:text-slate-200">
-                        <span className="text-rose-600 dark:text-rose-500 font-bold text-base leading-none mt-0.5">•</span>
-                        <span className="font-medium leading-relaxed">{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-3">
+                    {item.bullets.map((bObj, bIdx) => {
+                      const bulletVal = bObj.bulletIdx >= 0 ? (studentData.bullets[bObj.bulletIdx] || '') : '';
+                      const wordCount = getWordCount(bulletVal);
+
+                      return (
+                        <div
+                          key={bIdx}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-xl p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 transition-colors shadow-xs"
+                        >
+                          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800/80 mb-2">
+                            <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+                              • {bObj.label}
+                            </span>
+                            {bObj.bulletIdx >= 0 && (
+                              <span className="text-[11px] font-mono-nums text-slate-500 dark:text-slate-400 font-semibold">
+                                {wordCount} words {wordCount > 25 && <span className="text-rose-600 font-bold ml-1">(too long)</span>}
+                              </span>
+                            )}
+                          </div>
+
+                          {bObj.bulletIdx >= 0 ? (
+                            <textarea
+                              rows={2}
+                              value={bulletVal}
+                              onChange={(e) => handleBulletChange(bObj.bulletIdx, e.target.value)}
+                              placeholder={bObj.placeholder}
+                              className="w-full bg-slate-50/50 dark:bg-slate-900/40 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 resize-none font-medium leading-relaxed"
+                            />
+                          ) : (
+                            <p className="text-xs text-slate-600 dark:text-slate-400 italic">
+                              {bObj.placeholder}
+                            </p>
+                          )}
+
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                            Guidance: {bObj.promptGuide}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
 
                 {/* Features Checklist view (Literary 1-3 & Non-Literary 4-6) */}
@@ -230,38 +334,67 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                     {item.features.map((feat) => {
                       const featKey = `${item.id}_${feat.num}`;
                       const isChecked = !!checkedFeatures[featKey];
+                      const bulletVal = studentData.bullets[feat.bulletIdx] || '';
+                      const wordCount = getWordCount(bulletVal);
 
                       return (
                         <div
                           key={feat.num}
-                          onClick={(e) => toggleFeature(featKey, e)}
-                          className={`rounded-xl p-2.5 transition-colors border ${
+                          className={`rounded-xl p-3 transition-colors border shadow-xs ${
                             isChecked
-                              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-200'
-                              : 'bg-white dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 text-slate-900 dark:text-slate-200'
+                              ? 'bg-emerald-50/80 dark:bg-emerald-950/25 border-emerald-400 dark:border-emerald-500/40'
+                              : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800'
                           }`}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
-                              • {feat.label}
-                            </span>
-                            <div className="flex items-center gap-1.5 text-[11px]">
-                              <div
-                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
-                                  isChecked
-                                    ? 'bg-emerald-500 border-emerald-400 text-white'
-                                    : 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
-                                }`}
-                              >
-                                {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
-                              </div>
-                              <span className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">
-                                {isChecked ? 'Delivered' : 'Check-off'}
+                          {/* Feature Header + Checkbox */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+                                • {feat.label}
                               </span>
+                              <span className="text-[11px] px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-950 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-500/30">
+                                {feat.bulletLabel}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <span className="text-[11px] font-mono-nums text-slate-500 dark:text-slate-400 font-semibold">
+                                {wordCount} words
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => toggleFeature(featKey, e)}
+                                className="flex items-center gap-1.5 text-[11px] font-medium"
+                              >
+                                <div
+                                  className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
+                                    isChecked
+                                      ? 'bg-emerald-500 border-emerald-400 text-white'
+                                      : 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
+                                  }`}
+                                >
+                                  {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                                </div>
+                                <span className="text-slate-600 dark:text-slate-400 text-[10px] font-semibold">
+                                  {isChecked ? 'Delivered' : 'Check-off'}
+                                </span>
+                              </button>
                             </div>
                           </div>
 
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-800 dark:text-slate-300">
+                          {/* Editable Bullet Textarea */}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <textarea
+                              rows={2}
+                              value={bulletVal}
+                              onChange={(e) => handleBulletChange(feat.bulletIdx, e.target.value)}
+                              placeholder={feat.placeholder}
+                              className="w-full bg-slate-50/70 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 resize-none font-medium leading-relaxed"
+                            />
+                          </div>
+
+                          {/* Step chips progression */}
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-slate-800 dark:text-slate-300">
                             {feat.steps.map((st, sIdx) => (
                               <React.Fragment key={sIdx}>
                                 <span className={`px-1.5 py-0.5 rounded text-[11px] ${
