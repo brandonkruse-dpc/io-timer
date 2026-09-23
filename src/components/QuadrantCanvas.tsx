@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData, WorkMetadata } from '../types';
+import { TEMPLATE_PRESETS } from '../utils/templates';
 import { BookOpen, Sparkles, CheckCircle, ShieldAlert, Edit3, ChevronDown, ChevronUp, ArrowLeftRight } from 'lucide-react';
 
 interface QuadrantCanvasProps {
@@ -62,18 +63,41 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
     return str.trim().split(/\s+/).length;
   };
 
-  // Find segments by role
-  const introSegment = segments.find((s) => s.type === 'intro') || segments[0];
-  const textAWorkSegment = segments.find((s) => s.type === 'textA_work') || segments[1];
-  const textAExtractSegment = segments.find((s) => s.type === 'textA_extract') || segments[2];
-  const textBWorkSegment = segments.find((s) => s.type === 'textB_work') || segments[3];
-  const textBExtractSegment = segments.find((s) => s.type === 'textB_extract') || segments[4];
-  const conclusionSegment = segments.find((s) => s.type === 'conclusion') || segments[segments.length - 1];
+  const defaultSegments = TEMPLATE_PRESETS[0].segments;
+
+  // Find segments by role with robust fallback to default template preset
+  const introSegment =
+    segments.find((s) => s.type === 'intro') ||
+    defaultSegments[0];
+
+  const textAWorkSegment =
+    segments.find((s) => s.type === 'textA_work') ||
+    segments.find((s) => s.type === 'textA_combined') ||
+    defaultSegments[1];
+
+  const textAExtractSegment =
+    segments.find((s) => s.type === 'textA_extract') ||
+    segments.find((s) => s.type === 'textA_combined') ||
+    defaultSegments[2];
+
+  const textBWorkSegment =
+    segments.find((s) => s.type === 'textB_work') ||
+    segments.find((s) => s.type === 'textB_combined') ||
+    defaultSegments[3];
+
+  const textBExtractSegment =
+    segments.find((s) => s.type === 'textB_extract') ||
+    segments.find((s) => s.type === 'textB_combined') ||
+    defaultSegments[4];
+
+  const conclusionSegment =
+    segments.find((s) => s.type === 'conclusion') ||
+    defaultSegments[5];
 
   const isNonLitFirst = studentData.analysisOrder === 'non_literary_first';
 
   const renderQuadrantCard = (
-    segment: Segment | undefined,
+    segmentInput: Segment | undefined,
     blockNum: number,
     labelHeader: string,
     subtitleLabel: string,
@@ -84,11 +108,23 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
     bulletPlaceholders: string[],
     positionClass: string,
     icon: React.ReactNode,
+    analysisBadge?: string,
   ) => {
-    if (!segment) return null;
-    const segIdx = segments.findIndex((s) => s.id === segment.id);
-    const isActive = activeSegmentIndex === segIdx;
-    const isCompleted = activeSegmentIndex > segIdx;
+    // Guaranteed non-null segment
+    const segment =
+      segmentInput ||
+      defaultSegments[blockNum === 5 ? 4 : blockNum === 4 ? 3 : blockNum === 3 ? 2 : 1];
+
+    let segIdx = segments.findIndex((s) => s.id === segment.id);
+    if (segIdx === -1) {
+      segIdx = segments.findIndex((s) => s.type === segment.type);
+    }
+    if (segIdx === -1) {
+      segIdx = segments.findIndex((s) => s.type.startsWith(workKey));
+    }
+
+    const isActive = segIdx >= 0 && activeSegmentIndex === segIdx;
+    const isCompleted = segIdx >= 0 && activeSegmentIndex > segIdx;
     const remaining = Math.max(0, segment.durationSeconds - (isActive ? segmentElapsedSeconds : 0));
     const percent = isActive
       ? Math.min(100, Math.round((segmentElapsedSeconds / segment.durationSeconds) * 100))
@@ -99,7 +135,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
     return (
       <div
-        onClick={() => onSelectSegment(segIdx)}
+        onClick={() => segIdx >= 0 && onSelectSegment(segIdx)}
         className={`group relative flex flex-col justify-between p-5 transition-all duration-300 cursor-pointer overflow-hidden border shadow-sm ${positionClass} ${
           isActive
             ? 'bg-rose-50/95 dark:bg-rose-950/40 border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.2)] ring-1 ring-rose-500/40'
@@ -125,10 +161,23 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400">
                     {labelHeader}
                   </span>
+                  {analysisBadge && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                      isNonLitFirst
+                        ? workKey === 'textB'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+                          : 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+                        : workKey === 'textA'
+                          ? 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+                    }`}>
+                      {analysisBadge}
+                    </span>
+                  )}
                   <span className="text-slate-400 dark:text-slate-600">·</span>
                   <span className="text-[11px] font-mono-nums font-semibold text-slate-600 dark:text-slate-400">
                     {Math.round(segment.durationSeconds / 60)} min
@@ -308,7 +357,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
   };
 
   const renderCenterPill = (
-    segment: Segment | undefined,
+    segmentInput: Segment | undefined,
     blockNum: number,
     labelHeader: string,
     subtitleLabel: string,
@@ -317,10 +366,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
     bulletPlaceholders: string[],
     isTop: boolean,
   ) => {
-    if (!segment) return null;
-    const segIdx = segments.findIndex((s) => s.id === segment.id);
-    const isActive = activeSegmentIndex === segIdx;
-    const isCompleted = activeSegmentIndex > segIdx;
+    const segment = segmentInput || defaultSegments[blockNum === 1 ? 0 : 5];
+    let segIdx = segments.findIndex((s) => s.id === segment.id);
+    if (segIdx === -1) {
+      segIdx = segments.findIndex((s) => s.type === (isTop ? 'intro' : 'conclusion'));
+    }
+    const isActive = segIdx >= 0 && activeSegmentIndex === segIdx;
+    const isCompleted = segIdx >= 0 && activeSegmentIndex > segIdx;
     const remaining = Math.max(0, segment.durationSeconds - (isActive ? segmentElapsedSeconds : 0));
     const percent = isActive
       ? Math.min(100, Math.round((segmentElapsedSeconds / segment.durationSeconds) * 100))
@@ -328,7 +380,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
     return (
       <div
-        onClick={() => onSelectSegment(segIdx)}
+        onClick={() => segIdx >= 0 && onSelectSegment(segIdx)}
         className={`group relative flex flex-col justify-between p-4 transition-all duration-300 cursor-pointer overflow-hidden border shadow-sm ${
           isTop ? 'rounded-2xl' : 'rounded-2xl'
         } ${
@@ -477,8 +529,8 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           <div className="flex flex-col gap-4">
             {renderQuadrantCard(
               textAWorkSegment,
-              isNonLitFirst ? 4 : 2,
-              `TEXT A: Overall Work (${isNonLitFirst ? '2nd Analysis' : '1st Analysis'})`,
+              2,
+              'TEXT A: Overall Work',
               'Macro Techniques & Overarching Themes',
               'textA',
               studentData.textA,
@@ -487,12 +539,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               ['Macro authorial choices, structural patterns, context, and connection to GI...'],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-blue-500" />,
+              isNonLitFirst ? '2nd Analysis (Mins 5–7)' : '1st Analysis (Mins 1–3)',
             )}
 
             {renderQuadrantCard(
               textAExtractSegment,
-              isNonLitFirst ? 5 : 3,
-              `TEXT A: Extract (Micro) (${isNonLitFirst ? '2nd Analysis' : '1st Analysis'})`,
+              3,
+              'TEXT A: Extract (Micro)',
               '1–2 Specific Literary Choices in Passage',
               'textA',
               studentData.textA,
@@ -506,6 +559,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               ],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-purple-500" />,
+              isNonLitFirst ? '2nd Analysis (Mins 7–9)' : '1st Analysis (Mins 3–5)',
             )}
           </div>
 
@@ -557,8 +611,8 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           <div className="flex flex-col gap-4">
             {renderQuadrantCard(
               textBWorkSegment,
-              isNonLitFirst ? 2 : 4,
-              `TEXT B: Overall Body of Work (${isNonLitFirst ? '1st Analysis' : '2nd Analysis'})`,
+              4,
+              'TEXT B: Overall Body of Work',
               'Macro Strategies across the Creator’s Works',
               'textB',
               studentData.textB,
@@ -567,12 +621,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               ['Creator broader portfolio/campaign strategies, intended audience, and GI...'],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-emerald-500" />,
+              isNonLitFirst ? '1st Analysis (Mins 1–3)' : '2nd Analysis (Mins 5–7)',
             )}
 
             {renderQuadrantCard(
               textBExtractSegment,
-              isNonLitFirst ? 3 : 5,
-              `TEXT B: Extract (Micro) (${isNonLitFirst ? '1st Analysis' : '2nd Analysis'})`,
+              5,
+              'TEXT B: Extract (Micro)',
               '1–2 Specific Multimodal / Rhetorical Choices',
               'textB',
               studentData.textB,
@@ -586,6 +641,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               ],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-rose-500" />,
+              isNonLitFirst ? '1st Analysis (Mins 3–5)' : '2nd Analysis (Mins 7–9)',
             )}
           </div>
 
