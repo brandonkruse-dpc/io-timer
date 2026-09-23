@@ -1,6 +1,33 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData } from '../types';
-import { Check, Sparkles, AlertCircle, Edit3 } from 'lucide-react';
+import { Check, Sparkles, AlertCircle, Edit3, ArrowLeftRight } from 'lucide-react';
+
+interface ChevronBulletItem {
+  bulletIdx: number;
+  label: string;
+  placeholder: string;
+  promptGuide: string;
+}
+
+interface ChevronFeatureItem {
+  num: number;
+  bulletIdx: number;
+  label: string;
+  bulletLabel: string;
+  placeholder: string;
+  steps: string[];
+}
+
+interface ChevronItem {
+  id: string;
+  timeLabel: string;
+  timeDurationSec: number;
+  title: string;
+  segmentIdx: number;
+  badgeColor: string;
+  bullets?: ChevronBulletItem[];
+  features?: ChevronFeatureItem[];
+}
 
 interface ChevronTimelineViewProps {
   segments: Segment[];
@@ -12,6 +39,7 @@ interface ChevronTimelineViewProps {
   includeDiscussion: boolean;
   onUpdateBullet?: (index: number, text: string) => void;
   onUpdateStudentData?: (newData: StudentIOData) => void;
+  onSwapAnalysisOrder?: () => void;
 }
 
 export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
@@ -24,6 +52,7 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
   includeDiscussion,
   onUpdateBullet,
   onUpdateStudentData,
+  onSwapAnalysisOrder,
 }) => {
   // Checkbox state for features during presentation rehearsal
   const [checkedFeatures, setCheckedFeatures] = useState<Record<string, boolean>>({});
@@ -57,126 +86,135 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
     return str.trim().split(/\s+/).length;
   };
 
-  // Philpot items mapping directly connected to user's 10-bullet plan
-  const chevronItems = [
-    {
-      id: 'c_intro',
-      timeLabel: '1 min',
-      timeDurationSec: 60,
-      title: 'Introduce global issue & works',
-      segmentIdx: 0,
-      badgeColor: 'bg-[#E56A20]',
-      bullets: [
-        {
-          bulletIdx: 0,
-          label: 'Bullet #1 · Global Issue Definition',
-          placeholder: 'Define Global Issue clearly, transnational significance, and why it matters...',
-          promptGuide: 'What is the global issue (GI)? Why does it matter across cultures?',
-        },
-        {
-          bulletIdx: 1,
-          label: 'Bullet #2 · Works & Thesis Statement',
-          placeholder: `How is the GI presented in ${studentData.textA.title} and ${studentData.textB.title}? State your thesis...`,
-          promptGuide: 'Identify both works and state how each uniquely explores the Global Issue (no direct comparison).',
-        },
-      ],
-    },
-    {
-      id: 'c_lit',
-      timeLabel: '4 min',
-      timeDurationSec: 240,
-      title: 'Literary work and passage',
-      segmentIdx: 1,
-      badgeColor: 'bg-[#E56A20]',
-      features: [
-        {
-          num: 1,
-          bulletIdx: 2,
-          label: 'Feature 1',
-          bulletLabel: 'Bullet #3 · Overall Literary Work',
-          placeholder: 'Macro authorial choices across the entire literary work, motifs, and relevance to GI...',
-          steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
-        },
-        {
-          num: 2,
-          bulletIdx: 3,
-          label: 'Feature 2',
-          bulletLabel: 'Bullet #4 · Literary Extract (Micro 1)',
-          placeholder: 'Close reading of extract: specific diction, imagery, syntax, tone, and link to GI...',
-          steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
-        },
-        {
-          num: 3,
-          bulletIdx: 4,
-          label: 'Feature 3',
-          bulletLabel: 'Bullet #5 · Literary Extract (Micro 2)',
-          placeholder: 'Second extract technique: structural shifts, characterization, authorial craft, and GI...',
-          steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
-        },
-      ],
-    },
-    {
-      id: 'c_nonlit',
-      timeLabel: '4 min',
-      timeDurationSec: 240,
-      title: 'Non-literary BOW and passage',
-      segmentIdx: 2,
-      badgeColor: 'bg-[#E56A20]',
-      features: [
-        {
-          num: 4,
-          bulletIdx: 5,
-          label: 'Feature 4',
-          bulletLabel: 'Bullet #6 · Overall Non-Lit Body of Work',
-          placeholder: 'Broader portfolio/campaign, recurring visual or rhetorical strategies, audience, and GI...',
-          steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
-        },
-        {
-          num: 5,
-          bulletIdx: 6,
-          label: 'Feature 5',
-          bulletLabel: 'Bullet #7 · Non-Lit Extract (Micro 1)',
-          placeholder: 'Extract micro-analysis: visual hierarchy, typography, composition, rhetorical appeal, and GI...',
-          steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
-        },
-        {
-          num: 6,
-          bulletIdx: 7,
-          label: 'Feature 6',
-          bulletLabel: 'Bullet #8 · Non-Lit Extract (Micro 2)',
-          placeholder: 'Second extract choice: framing, color, ethos/pathos/logos, immediate effect on viewer, and GI...',
-          steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
-        },
-      ],
-    },
-    {
-      id: 'c_conclusion',
-      timeLabel: '1 min',
-      timeDurationSec: 60,
-      title: 'Conclusion',
-      segmentIdx: 3,
-      badgeColor: 'bg-[#E56A20]',
-      bullets: [
-        {
-          bulletIdx: 8,
-          label: 'Bullet #9 · Synthesis of Both Works',
-          placeholder: 'How do the BOW and Lit work present the GI similarly and differently in perspective?',
-          promptGuide: 'Synthesize the unique approaches of both creators without direct point-by-point comparison.',
-        },
-        {
-          bulletIdx: 9,
-          label: 'Bullet #10 · Evaluation & Final Perspective',
-          placeholder: 'How effective are both creators? Final authoritative statement on the enduring relevance of the GI...',
-          promptGuide: 'Evaluate creator efficacy and deliver a memorable closing takeaway before 10:00.',
-        },
-      ],
-    },
+  const isNonLitFirst = studentData.analysisOrder === 'non_literary_first';
+
+  // Philpot items mapping directly connected to user's 10-bullet plan & analysis order
+  const introChevron = {
+    id: 'c_intro',
+    timeLabel: '1 min',
+    timeDurationSec: 60,
+    title: 'Introduce global issue & works',
+    segmentIdx: 0,
+    badgeColor: 'bg-[#E56A20]',
+    bullets: [
+      {
+        bulletIdx: 0,
+        label: 'Bullet #1 · Global Issue Definition',
+        placeholder: 'Define Global Issue clearly, transnational significance, and why it matters...',
+        promptGuide: 'What is the global issue (GI)? Why does it matter across cultures?',
+      },
+      {
+        bulletIdx: 1,
+        label: 'Bullet #2 · Works & Thesis Statement',
+        placeholder: `How is the GI presented in ${studentData.textA.title} and ${studentData.textB.title}? State your thesis...`,
+        promptGuide: 'Identify both works and state how each uniquely explores the Global Issue (no direct comparison).',
+      },
+    ],
+  };
+
+  const litChevron = {
+    id: 'c_lit',
+    timeLabel: '4 min',
+    timeDurationSec: 240,
+    title: `Literary work and passage: ${studentData.textA.title || 'Text A'}`,
+    segmentIdx: isNonLitFirst ? (segments.length > 4 ? 3 : 2) : 1,
+    badgeColor: 'bg-[#E56A20]',
+    features: [
+      {
+        num: isNonLitFirst ? 4 : 1,
+        bulletIdx: isNonLitFirst ? 5 : 2,
+        label: `Feature ${isNonLitFirst ? 4 : 1}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 6 : 3} · Overall Literary Work`,
+        placeholder: 'Macro authorial choices across the entire literary work, motifs, and relevance to GI...',
+        steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
+      },
+      {
+        num: isNonLitFirst ? 5 : 2,
+        bulletIdx: isNonLitFirst ? 6 : 3,
+        label: `Feature ${isNonLitFirst ? 5 : 2}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 7 : 4} · Literary Extract (Micro 1)`,
+        placeholder: 'Close reading of extract: specific diction, imagery, syntax, tone, and link to GI...',
+        steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
+      },
+      {
+        num: isNonLitFirst ? 6 : 3,
+        bulletIdx: isNonLitFirst ? 7 : 4,
+        label: `Feature ${isNonLitFirst ? 6 : 3}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 8 : 5} · Literary Extract (Micro 2)`,
+        placeholder: 'Second extract technique: structural shifts, characterization, authorial craft, and GI...',
+        steps: ['example from passage', 'effects', 'examples from entire work', 'effects', 'relevance to GI'],
+      },
+    ],
+  };
+
+  const nonLitChevron = {
+    id: 'c_nonlit',
+    timeLabel: '4 min',
+    timeDurationSec: 240,
+    title: `Non-literary BOW and passage: ${studentData.textB.title || 'Text B'}`,
+    segmentIdx: isNonLitFirst ? 1 : (segments.length > 4 ? 3 : 2),
+    badgeColor: 'bg-[#E56A20]',
+    features: [
+      {
+        num: isNonLitFirst ? 1 : 4,
+        bulletIdx: isNonLitFirst ? 2 : 5,
+        label: `Feature ${isNonLitFirst ? 1 : 4}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 3 : 6} · Overall Non-Lit Body of Work`,
+        placeholder: 'Broader portfolio/campaign, recurring visual or rhetorical strategies, audience, and GI...',
+        steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
+      },
+      {
+        num: isNonLitFirst ? 2 : 5,
+        bulletIdx: isNonLitFirst ? 3 : 6,
+        label: `Feature ${isNonLitFirst ? 2 : 5}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 4 : 7} · Non-Lit Extract (Micro 1)`,
+        placeholder: 'Extract micro-analysis: visual hierarchy, typography, composition, rhetorical appeal, and GI...',
+        steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
+      },
+      {
+        num: isNonLitFirst ? 3 : 6,
+        bulletIdx: isNonLitFirst ? 4 : 7,
+        label: `Feature ${isNonLitFirst ? 3 : 6}`,
+        bulletLabel: `Bullet #${isNonLitFirst ? 5 : 8} · Non-Lit Extract (Micro 2)`,
+        placeholder: 'Second extract choice: framing, color, ethos/pathos/logos, immediate effect on viewer, and GI...',
+        steps: ['example from passage', 'effects', 'examples from BOW', 'effects', 'relevance to GI'],
+      },
+    ],
+  };
+
+  const conclusionChevron = {
+    id: 'c_conclusion',
+    timeLabel: '1 min',
+    timeDurationSec: 60,
+    title: 'Conclusion',
+    segmentIdx: segments.length > 4 ? 5 : 3,
+    badgeColor: 'bg-[#E56A20]',
+    bullets: [
+      {
+        bulletIdx: 8,
+        label: 'Bullet #9 · Synthesis of Both Works',
+        placeholder: 'How do the BOW and Lit work present the GI similarly and differently in perspective?',
+        promptGuide: 'Synthesize the unique approaches of both creators without direct point-by-point comparison.',
+      },
+      {
+        bulletIdx: 9,
+        label: 'Bullet #10 · Evaluation & Final Perspective',
+        placeholder: 'How effective are both creators? Final authoritative statement on the enduring relevance of the GI...',
+        promptGuide: 'Evaluate creator efficacy and deliver a memorable closing takeaway before 10:00.',
+      },
+    ],
+  };
+
+  const chevronItems: ChevronItem[] = [
+    introChevron,
+    ...(isNonLitFirst ? [nonLitChevron, litChevron] : [litChevron, nonLitChevron]),
+    conclusionChevron,
     ...(includeDiscussion ? [{
       id: 'c_discussion',
       timeLabel: '5 min',
       timeDurationSec: 300,
       title: 'Discussion (Teacher Follow-up)',
-      segmentIdx: 4,
+      segmentIdx: segments.length > 4 ? 6 : 4,
       badgeColor: 'bg-[#E56A20]',
       bullets: [
         {
@@ -201,13 +239,26 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
         </p>
       </div>
 
-      {/* Synchronized Practice Banner */}
-      <div className="no-print rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/90 dark:bg-amber-950/30 p-3.5 flex items-center justify-between gap-3 text-xs text-amber-950 dark:text-amber-200 shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <Edit3 className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />
-          <p className="font-medium">
-            <strong className="font-bold">Two-Way Practice Editing:</strong> The text fields inside each chevron correspond directly to your <strong className="font-bold">10 Bullet Points</strong>. Any edits you make here while practicing will instantly update your official 10-Bullet Form and all other views.
-          </p>
+      {/* Synchronized Practice Banner & Swap Control */}
+      <div className="no-print space-y-2">
+        <div className="rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/90 dark:bg-amber-950/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-950 dark:text-amber-200 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <Edit3 className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />
+            <p className="font-medium">
+              <strong className="font-bold">Two-Way Practice Editing:</strong> The text fields inside each chevron correspond directly to your <strong className="font-bold">10 Bullet Points</strong>. Any edits made here sync live.
+            </p>
+          </div>
+          {onSwapAnalysisOrder && (
+            <button
+              type="button"
+              onClick={onSwapAnalysisOrder}
+              className="self-start sm:self-auto shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-500/40 bg-white dark:bg-slate-900 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-950 dark:text-amber-300 text-xs font-bold transition-colors shadow-xs"
+              title="Swap which text is analyzed first"
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Order: {isNonLitFirst ? 'Non-Lit First ⇄' : 'Lit First ⇄'}</span>
+            </button>
+          )}
         </div>
       </div>
 

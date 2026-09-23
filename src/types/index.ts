@@ -70,4 +70,5 @@ export interface StudentIOData {
   voiceSpeechEnabled: boolean;
   giCheckinFrequency: 'high' | 'normal' | 'low'; // high = 45s, normal = 90s, low = halfway
   includeDiscussion: boolean; // 5 min discussion
+  analysisOrder?: 'literary_first' | 'non_literary_first'; // Order of analysis: Literary first or Non-Literary first
 }

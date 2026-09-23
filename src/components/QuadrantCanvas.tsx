@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData, WorkMetadata } from '../types';
-import { BookOpen, Sparkles, CheckCircle, ShieldAlert, Edit3, ChevronDown, ChevronUp } from 'lucide-react';
+import { BookOpen, Sparkles, CheckCircle, ShieldAlert, Edit3, ChevronDown, ChevronUp, ArrowLeftRight } from 'lucide-react';
 
 interface QuadrantCanvasProps {
   segments: Segment[];
@@ -11,6 +11,7 @@ interface QuadrantCanvasProps {
   studentData: StudentIOData;
   onUpdateBullet?: (index: number, text: string) => void;
   onUpdateStudentData?: (newData: StudentIOData) => void;
+  onSwapAnalysisOrder?: () => void;
 }
 
 export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
@@ -22,6 +23,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
   studentData,
   onUpdateBullet,
   onUpdateStudentData,
+  onSwapAnalysisOrder,
 }) => {
   const [expandedGuidance, setExpandedGuidance] = useState<Record<string, boolean>>({});
   const [editingMetadata, setEditingMetadata] = useState<Record<string, boolean>>({});
@@ -67,6 +69,8 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
   const textBWorkSegment = segments.find((s) => s.type === 'textB_work') || segments[3];
   const textBExtractSegment = segments.find((s) => s.type === 'textB_extract') || segments[4];
   const conclusionSegment = segments.find((s) => s.type === 'conclusion') || segments[segments.length - 1];
+
+  const isNonLitFirst = studentData.analysisOrder === 'non_literary_first';
 
   const renderQuadrantCard = (
     segment: Segment | undefined,
@@ -418,24 +422,51 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
         {/* 50/50 Balance Indicator Banner */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-700 dark:text-slate-400">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-slate-900 dark:text-slate-200">IB Balance Check:</span>
-            <span className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-blue-900 dark:text-blue-300 font-mono-nums border border-blue-200 dark:border-blue-500/20 font-bold">
-              Literary Work: ~4m
-            </span>
-            <span className="text-slate-400 dark:text-slate-600">+</span>
-            <span className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 text-emerald-900 dark:text-emerald-300 font-mono-nums border border-emerald-200 dark:border-emerald-500/20 font-bold">
-              Non-Lit BOW: ~4m
-            </span>
+            {isNonLitFirst ? (
+              <>
+                <span className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 text-emerald-900 dark:text-emerald-300 font-mono-nums border border-emerald-200 dark:border-emerald-500/20 font-bold">
+                  1st: Non-Lit BOW (~4m)
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">→</span>
+                <span className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-blue-900 dark:text-blue-300 font-mono-nums border border-blue-200 dark:border-blue-500/20 font-bold">
+                  2nd: Literary Work (~4m)
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-blue-900 dark:text-blue-300 font-mono-nums border border-blue-200 dark:border-blue-500/20 font-bold">
+                  1st: Literary Work (~4m)
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">→</span>
+                <span className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 text-emerald-900 dark:text-emerald-300 font-mono-nums border border-emerald-200 dark:border-emerald-500/20 font-bold">
+                  2nd: Non-Lit BOW (~4m)
+                </span>
+              </>
+            )}
             <span className="text-slate-400 dark:text-slate-600">+</span>
             <span className="rounded-lg bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 text-amber-900 dark:text-amber-300 font-mono-nums border border-amber-200 dark:border-amber-500/20 font-bold">
               Intro & Concl: ~2m
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-            <ShieldAlert className="h-3.5 w-3.5 text-amber-600 dark:text-amber-500" />
-            <span className="text-[11px] font-medium">Equal weight between Extracts & Entire Works required</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+              <ShieldAlert className="h-3.5 w-3.5 text-amber-600 dark:text-amber-500" />
+              <span className="text-[11px] font-medium hidden sm:inline">Equal weight required</span>
+            </div>
+            {onSwapAnalysisOrder && (
+              <button
+                type="button"
+                onClick={onSwapAnalysisOrder}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-950 dark:text-amber-300 text-xs font-bold transition-colors shadow-xs"
+                title="Swap order of analysis: Analyze other category first"
+              >
+                <ArrowLeftRight className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                <span>Order: {isNonLitFirst ? 'Non-Lit First ⇄' : 'Lit First ⇄'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -446,13 +477,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           <div className="flex flex-col gap-4">
             {renderQuadrantCard(
               textAWorkSegment,
-              2,
-              'TEXT A: Overall Work',
+              isNonLitFirst ? 4 : 2,
+              `TEXT A: Overall Work (${isNonLitFirst ? '2nd Analysis' : '1st Analysis'})`,
               'Macro Techniques & Overarching Themes',
               'textA',
               studentData.textA,
-              [2],
-              ['Bullet #3 · Overall Literary Work'],
+              isNonLitFirst ? [5] : [2],
+              [isNonLitFirst ? 'Bullet #6 · Overall Literary Work' : 'Bullet #3 · Overall Literary Work'],
               ['Macro authorial choices, structural patterns, context, and connection to GI...'],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-blue-500" />,
@@ -460,13 +491,15 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
             {renderQuadrantCard(
               textAExtractSegment,
-              3,
-              'TEXT A: Extract (Micro)',
+              isNonLitFirst ? 5 : 3,
+              `TEXT A: Extract (Micro) (${isNonLitFirst ? '2nd Analysis' : '1st Analysis'})`,
               '1–2 Specific Literary Choices in Passage',
               'textA',
               studentData.textA,
-              [3, 4],
-              ['Bullet #4 · Extract Choice 1', 'Bullet #5 · Extract Choice 2'],
+              isNonLitFirst ? [6, 7] : [3, 4],
+              isNonLitFirst
+                ? ['Bullet #7 · Extract Choice 1', 'Bullet #8 · Extract Choice 2']
+                : ['Bullet #4 · Extract Choice 1', 'Bullet #5 · Extract Choice 2'],
               [
                 'Close analysis of 1st choice: diction, syntax, figurative language, tone...',
                 'Close analysis of 2nd choice: structural shifts, characterization, effect on audience...',
@@ -524,13 +557,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           <div className="flex flex-col gap-4">
             {renderQuadrantCard(
               textBWorkSegment,
-              4,
-              'TEXT B: Overall Body of Work',
+              isNonLitFirst ? 2 : 4,
+              `TEXT B: Overall Body of Work (${isNonLitFirst ? '1st Analysis' : '2nd Analysis'})`,
               'Macro Strategies across the Creator’s Works',
               'textB',
               studentData.textB,
-              [5],
-              ['Bullet #6 · Overall Non-Lit Body of Work'],
+              isNonLitFirst ? [2] : [5],
+              [isNonLitFirst ? 'Bullet #3 · Overall Non-Lit Body of Work' : 'Bullet #6 · Overall Non-Lit Body of Work'],
               ['Creator broader portfolio/campaign strategies, intended audience, and GI...'],
               'rounded-2xl',
               <BookOpen className="h-5 w-5 text-emerald-500" />,
@@ -538,13 +571,15 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
             {renderQuadrantCard(
               textBExtractSegment,
-              5,
-              'TEXT B: Extract (Micro)',
+              isNonLitFirst ? 3 : 5,
+              `TEXT B: Extract (Micro) (${isNonLitFirst ? '1st Analysis' : '2nd Analysis'})`,
               '1–2 Specific Multimodal / Rhetorical Choices',
               'textB',
               studentData.textB,
-              [6, 7],
-              ['Bullet #7 · Non-Lit Extract Choice 1', 'Bullet #8 · Non-Lit Extract Choice 2'],
+              isNonLitFirst ? [3, 4] : [6, 7],
+              isNonLitFirst
+                ? ['Bullet #4 · Non-Lit Extract Choice 1', 'Bullet #5 · Non-Lit Extract Choice 2']
+                : ['Bullet #7 · Non-Lit Extract Choice 1', 'Bullet #8 · Non-Lit Extract Choice 2'],
               [
                 'Micro analysis of 1st choice: visual hierarchy, typography, framing...',
                 'Micro analysis of 2nd choice: rhetorical appeal, color, contrast, effect on viewer...',

@@ -19,6 +19,7 @@ interface FocusMockStageProps {
   onDismissCheckinAlert: () => void;
   onUpdateBullet?: (index: number, text: string) => void;
   onUpdateStudentData?: (newData: StudentIOData) => void;
+  onSwapAnalysisOrder?: () => void;
 }
 
 export const FocusMockStage: React.FC<FocusMockStageProps> = ({
@@ -37,6 +38,7 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
   onDismissCheckinAlert,
   onUpdateBullet,
   onUpdateStudentData,
+  onSwapAnalysisOrder,
 }) => {
   const [isEditingGI, setIsEditingGI] = useState(false);
 
@@ -70,7 +72,7 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
   };
 
   // Get mapped bullet indices for the active rehearsal segment
-  const activeBulletIndices = getBulletIndicesForSegment(currentSegment);
+  const activeBulletIndices = getBulletIndicesForSegment(currentSegment, studentData.analysisOrder);
 
   return (
     <div className="relative min-h-[620px] w-full flex flex-col justify-between rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 sm:p-8 shadow-xl dark:shadow-2xl overflow-hidden transition-colors">
@@ -216,7 +218,7 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
               {activeBulletIndices.map((bIdx) => {
                 const bulletVal = studentData.bullets[bIdx] || '';
                 const wordCount = getWordCount(bulletVal);
-                const phaseLabel = getBulletPhaseLabel(bIdx);
+                const phaseLabel = getBulletPhaseLabel(bIdx, studentData.analysisOrder);
 
                 return (
                   <div

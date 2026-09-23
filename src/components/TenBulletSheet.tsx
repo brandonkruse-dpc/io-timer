@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { StudentIOData, Segment, TemplateId } from '../types';
-import { TEMPLATE_PRESETS, GLOBAL_ISSUE_FIELDS, saveStudentData, DEFAULT_STUDENT_DATA, getBulletMappingDescription } from '../utils/templates';
+import { TEMPLATE_PRESETS, GLOBAL_ISSUE_FIELDS, saveStudentData, DEFAULT_STUDENT_DATA, getBulletMappingDescription, getBulletPhaseLabel, swapAnalysisOrder, getPresetSegmentsWithOrder } from '../utils/templates';
 import { exportPlanToCSV, importPlanFromCSV } from '../utils/csv';
 import {
   FileText,
@@ -137,12 +137,11 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
 
   // Preset template changer
   const handleApplyPreset = (presetId: TemplateId) => {
-    const preset = TEMPLATE_PRESETS.find((p) => p.id === presetId);
-    if (!preset) return;
+    const segments = getPresetSegmentsWithOrder(presetId, studentData.analysisOrder || 'literary_first');
     const updated: StudentIOData = {
       ...studentData,
       activeTemplateId: presetId,
-      customSegments: JSON.parse(JSON.stringify(preset.segments)),
+      customSegments: segments,
     };
     onUpdateStudentData(updated);
     saveStudentData(updated);
@@ -183,16 +182,17 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
     saveStudentData(updated);
   };
 
-  // Swap Text A and Text B order
-  const handleSwapTexts = () => {
-    const updated = {
-      ...studentData,
-      textA: { ...studentData.textB },
-      textB: { ...studentData.textA },
-    };
+  // Swap Analysis Order between Literary first and Non-Literary first
+  const handleSwapAnalysisOrder = () => {
+    const updated = swapAnalysisOrder(studentData);
     onUpdateStudentData(updated);
     saveStudentData(updated);
-    triggerFeedback('success', 'Swapped Text A and Text B order across all views!');
+    if (onResetTimer) onResetTimer();
+    const isNowNonLitFirst = updated.analysisOrder === 'non_literary_first';
+    triggerFeedback(
+      'success',
+      `Swapped Analysis Order: Now analyzing ${isNowNonLitFirst ? 'Non-Literary first' : 'Literary first'}. Text categorizations preserved!`
+    );
   };
 
   return (
@@ -349,13 +349,20 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               </p>
             </div>
 
-            <button
-              onClick={handleSwapTexts}
-              className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold transition-colors"
-            >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-              <span>Swap Text A ⇄ Text B Order</span>
-            </button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 self-start sm:self-center">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
+                Order: <span className="text-amber-700 dark:text-amber-400 font-bold">{studentData.analysisOrder === 'non_literary_first' ? 'Non-Literary First' : 'Literary First'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleSwapAnalysisOrder}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-950 dark:text-amber-300 text-xs font-bold transition-colors shadow-xs"
+                title="Swap which work is analyzed first in the presentation"
+              >
+                <ArrowLeftRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Swap Analysis Order (Analyze {studentData.analysisOrder === 'non_literary_first' ? 'Literary First' : 'Non-Literary First'})</span>
+              </button>
+            </div>
           </div>
 
           {/* Preset Buttons */}
@@ -568,101 +575,126 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
             </div>
 
             {/* Two Works Details Side by Side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              
-              {/* Text A (Literary) */}
-              <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-500/10 print:bg-gray-50 border border-blue-200 dark:border-blue-500/30 print:border-gray-300 space-y-2 transition-colors">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-400 print:text-black block">
-                  Text A: Literary Work
+            <div className="space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  Two Works Examined (1 Literary + 1 Non-Literary)
                 </span>
-                <div>
-                  <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Work Title & Author</label>
-                  <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSwapAnalysisOrder}
+                  className="no-print self-start sm:self-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-950 dark:text-amber-300 text-xs font-bold transition-colors shadow-xs"
+                >
+                  <ArrowLeftRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  <span>Analysis Order: {studentData.analysisOrder === 'non_literary_first' ? 'Non-Literary First ⇄' : 'Literary First ⇄'}</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {/* Text A (Literary) */}
+                <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-500/10 print:bg-gray-50 border border-blue-200 dark:border-blue-500/30 print:border-gray-300 space-y-2 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-400 print:text-black">
+                      Text A: Literary Work
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50">
+                      {studentData.analysisOrder === 'non_literary_first' ? 'Analyzed 2nd (Mins 5–9)' : 'Analyzed 1st (Mins 1–5)'}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Work Title & Author</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={studentData.textA?.title || ''}
+                        onChange={(e) => onUpdateStudentData({
+                          ...studentData,
+                          textA: { ...studentData.textA, title: e.target.value }
+                        })}
+                        placeholder="Title"
+                        className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      />
+                      <input
+                        type="text"
+                        value={studentData.textA?.creator || ''}
+                        onChange={(e) => onUpdateStudentData({
+                          ...studentData,
+                          textA: { ...studentData.textA, creator: e.target.value }
+                        })}
+                        placeholder="Author"
+                        className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Extract Reference (approx 40 lines)</label>
                     <input
                       type="text"
-                      value={studentData.textA?.title || ''}
+                      value={studentData.textA?.extractDetails || ''}
                       onChange={(e) => onUpdateStudentData({
                         ...studentData,
-                        textA: { ...studentData.textA, title: e.target.value }
+                        textA: { ...studentData.textA, extractDetails: e.target.value }
                       })}
-                      placeholder="Title"
-                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
-                    />
-                    <input
-                      type="text"
-                      value={studentData.textA?.creator || ''}
-                      onChange={(e) => onUpdateStudentData({
-                        ...studentData,
-                        textA: { ...studentData.textA, creator: e.target.value }
-                      })}
-                      placeholder="Author"
-                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      placeholder="e.g. Part I, Chapter 1 (Lines 24–65)"
+                      className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Extract Reference (approx 40 lines)</label>
-                  <input
-                    type="text"
-                    value={studentData.textA?.extractDetails || ''}
-                    onChange={(e) => onUpdateStudentData({
-                      ...studentData,
-                      textA: { ...studentData.textA, extractDetails: e.target.value }
-                    })}
-                    placeholder="e.g. Part I, Chapter 1 (Lines 24–65)"
-                    className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
-                  />
-                </div>
-              </div>
+                {/* Text B (Non-Literary) */}
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 print:bg-gray-50 border border-emerald-200 dark:border-emerald-500/30 print:border-gray-300 space-y-2 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 print:text-black">
+                      Text B: Non-Literary Body of Work (BOW)
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/50">
+                      {studentData.analysisOrder === 'non_literary_first' ? 'Analyzed 1st (Mins 1–5)' : 'Analyzed 2nd (Mins 5–9)'}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Body of Work Title & Creator</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={studentData.textB?.title || ''}
+                        onChange={(e) => onUpdateStudentData({
+                          ...studentData,
+                          textB: { ...studentData.textB, title: e.target.value }
+                        })}
+                        placeholder="BOW Title"
+                        className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      />
+                      <input
+                        type="text"
+                        value={studentData.textB?.creator || ''}
+                        onChange={(e) => onUpdateStudentData({
+                          ...studentData,
+                          textB: { ...studentData.textB, creator: e.target.value }
+                        })}
+                        placeholder="Creator"
+                        className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      />
+                    </div>
+                  </div>
 
-              {/* Text B (Non-Literary) */}
-              <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 print:bg-gray-50 border border-emerald-200 dark:border-emerald-500/30 print:border-gray-300 space-y-2 transition-colors">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 print:text-black block">
-                  Text B: Non-Literary Body of Work (BOW)
-                </span>
-                <div>
-                  <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Body of Work Title & Creator</label>
-                  <div className="flex gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Extract Details</label>
                     <input
                       type="text"
-                      value={studentData.textB?.title || ''}
+                      value={studentData.textB?.extractDetails || ''}
                       onChange={(e) => onUpdateStudentData({
                         ...studentData,
-                        textB: { ...studentData.textB, title: e.target.value }
+                        textB: { ...studentData.textB, extractDetails: e.target.value }
                       })}
-                      placeholder="BOW Title"
-                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
-                    />
-                    <input
-                      type="text"
-                      value={studentData.textB?.creator || ''}
-                      onChange={(e) => onUpdateStudentData({
-                        ...studentData,
-                        textB: { ...studentData.textB, creator: e.target.value }
-                      })}
-                      placeholder="Creator / Artist"
-                      className="w-1/2 bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 font-semibold text-slate-900 dark:text-white print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
+                      placeholder="e.g. Obey with Caution Poster (2012)"
+                      className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-600 dark:text-slate-400 print:text-gray-600 font-semibold block">Extract Reference (Single Image/Text)</label>
-                  <input
-                    type="text"
-                    value={studentData.textB?.extractDetails || ''}
-                    onChange={(e) => onUpdateStudentData({
-                      ...studentData,
-                      textB: { ...studentData.textB, extractDetails: e.target.value }
-                    })}
-                    placeholder="e.g. Screenprint #2 (2012)"
-                    className="w-full bg-white dark:bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-300 dark:border-slate-800 print:border-gray-300 text-xs text-slate-800 dark:text-slate-200 print:text-black focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
-                  />
-                </div>
               </div>
-
             </div>
+
           </div>
         </div>
 
@@ -680,28 +712,8 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           {bullets.map((bullet, idx) => {
             const wordCount = bullet.trim() ? bullet.trim().split(/\s+/).length : 0;
             const isTooLong = wordCount > 25;
-            const mapping = getBulletMappingDescription(idx);
-
-            // Suggested oral phase tagging
-            const phaseHint = idx === 0 
-              ? 'Intro: GI' 
-              : idx === 1 
-                ? 'Intro: Thesis'
-                : idx === 2
-                  ? 'Text A: Work'
-                  : idx === 3
-                    ? 'Text A: Micro 1'
-                    : idx === 4
-                      ? 'Text A: Micro 2'
-                      : idx === 5
-                        ? 'Text B: BOW'
-                        : idx === 6
-                          ? 'Text B: Micro 1'
-                          : idx === 7
-                            ? 'Text B: Micro 2'
-                            : idx === 8
-                              ? 'GI Synthesis'
-                              : 'Conclusion';
+            const mapping = getBulletMappingDescription(idx, studentData.analysisOrder || 'literary_first');
+            const phaseHint = getBulletPhaseLabel(idx, studentData.analysisOrder || 'literary_first');
 
             return (
               <div

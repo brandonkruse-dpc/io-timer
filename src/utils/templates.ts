@@ -421,26 +421,32 @@ export const DEFAULT_STUDENT_DATA: StudentIOData = {
   voiceSpeechEnabled: false,
   giCheckinFrequency: 'normal',
   includeDiscussion: false,
+  analysisOrder: 'literary_first',
 };
 
 export const STORAGE_KEY = 'ib_oral_visual_timer_data_v1';
 
-export function getBulletIndicesForSegment(segment: Segment): number[] {
+export function getBulletIndicesForSegment(
+  segment: Segment,
+  analysisOrder: 'literary_first' | 'non_literary_first' = 'literary_first'
+): number[] {
+  const isNonLitFirst = analysisOrder === 'non_literary_first';
+
   switch (segment.type) {
     case 'intro':
       return [0, 1];
     case 'textA_work':
-      return [2];
+      return isNonLitFirst ? [5] : [2];
     case 'textA_extract':
-      return [3, 4];
+      return isNonLitFirst ? [6, 7] : [3, 4];
     case 'textA_combined':
-      return [2, 3, 4];
+      return isNonLitFirst ? [5, 6, 7] : [2, 3, 4];
     case 'textB_work':
-      return [5];
+      return isNonLitFirst ? [2] : [5];
     case 'textB_extract':
-      return [6, 7];
+      return isNonLitFirst ? [3, 4] : [6, 7];
     case 'textB_combined':
-      return [5, 6, 7];
+      return isNonLitFirst ? [2, 3, 4] : [5, 6, 7];
     case 'conclusion':
       return [8, 9];
     case 'discussion':
@@ -449,24 +455,29 @@ export function getBulletIndicesForSegment(segment: Segment): number[] {
   }
 }
 
-export function getBulletPhaseLabel(bulletIndex: number): string {
+export function getBulletPhaseLabel(
+  bulletIndex: number,
+  analysisOrder: 'literary_first' | 'non_literary_first' = 'literary_first'
+): string {
+  const isNonLitFirst = analysisOrder === 'non_literary_first';
+
   switch (bulletIndex) {
     case 0:
       return 'Intro: Global Issue Definition';
     case 1:
       return 'Intro: Works & Thesis Statement';
     case 2:
-      return 'Text A: Overall Literary Work';
+      return isNonLitFirst ? 'Text B: Overall Non-Lit Body of Work' : 'Text A: Overall Literary Work';
     case 3:
-      return 'Text A: Extract Micro-Analysis (Choice 1)';
+      return isNonLitFirst ? 'Text B: Extract Micro-Analysis (Choice 1)' : 'Text A: Extract Micro-Analysis (Choice 1)';
     case 4:
-      return 'Text A: Extract Micro-Analysis (Choice 2)';
+      return isNonLitFirst ? 'Text B: Extract Micro-Analysis (Choice 2)' : 'Text A: Extract Micro-Analysis (Choice 2)';
     case 5:
-      return 'Text B: Overall Non-Lit Body of Work';
+      return isNonLitFirst ? 'Text A: Overall Literary Work' : 'Text B: Overall Non-Lit Body of Work';
     case 6:
-      return 'Text B: Extract Micro-Analysis (Choice 1)';
+      return isNonLitFirst ? 'Text A: Extract Micro-Analysis (Choice 1)' : 'Text B: Extract Micro-Analysis (Choice 1)';
     case 7:
-      return 'Text B: Extract Micro-Analysis (Choice 2)';
+      return isNonLitFirst ? 'Text A: Extract Micro-Analysis (Choice 2)' : 'Text B: Extract Micro-Analysis (Choice 2)';
     case 8:
       return 'Synthesis: Global Issue Exploration';
     case 9:
@@ -476,31 +487,151 @@ export function getBulletPhaseLabel(bulletIndex: number): string {
   }
 }
 
-export function getBulletMappingDescription(bulletIndex: number): { quadrant: string; chevron: string } {
-  switch (bulletIndex) {
-    case 0:
-      return { quadrant: 'Center-Top (Intro)', chevron: 'Intro (1 min)' };
-    case 1:
-      return { quadrant: 'Center-Top (Intro)', chevron: 'Intro (1 min)' };
-    case 2:
-      return { quadrant: 'Top-Left (Text A Overall Work)', chevron: 'Literary Work (Feature 1)' };
-    case 3:
-      return { quadrant: 'Bottom-Left (Text A Extract)', chevron: 'Literary Work (Feature 2)' };
-    case 4:
-      return { quadrant: 'Bottom-Left (Text A Extract)', chevron: 'Literary Work (Feature 3)' };
-    case 5:
-      return { quadrant: 'Top-Right (Text B Overall BOW)', chevron: 'Non-Lit BOW (Feature 4)' };
-    case 6:
-      return { quadrant: 'Bottom-Right (Text B Extract)', chevron: 'Non-Lit BOW (Feature 5)' };
-    case 7:
-      return { quadrant: 'Bottom-Right (Text B Extract)', chevron: 'Non-Lit BOW (Feature 6)' };
-    case 8:
-      return { quadrant: 'Center-Bottom (Conclusion)', chevron: 'Conclusion (Synthesis)' };
-    case 9:
-      return { quadrant: 'Center-Bottom (Conclusion)', chevron: 'Conclusion (Evaluation)' };
-    default:
-      return { quadrant: 'General', chevron: 'General' };
+export function getBulletMappingDescription(
+  bulletIndex: number,
+  analysisOrder: 'literary_first' | 'non_literary_first' = 'literary_first'
+): { quadrant: string; chevron: string } {
+  const isNonLitFirst = analysisOrder === 'non_literary_first';
+
+  if (!isNonLitFirst) {
+    switch (bulletIndex) {
+      case 0:
+        return { quadrant: 'Center-Top (Intro - Block 1)', chevron: 'Intro (1 min)' };
+      case 1:
+        return { quadrant: 'Center-Top (Intro - Block 1)', chevron: 'Intro (1 min)' };
+      case 2:
+        return { quadrant: 'Top-Left (Text A Overall Work - Block 2)', chevron: 'Literary Work (Feature 1)' };
+      case 3:
+        return { quadrant: 'Bottom-Left (Text A Extract - Block 3)', chevron: 'Literary Work (Feature 2)' };
+      case 4:
+        return { quadrant: 'Bottom-Left (Text A Extract - Block 3)', chevron: 'Literary Work (Feature 3)' };
+      case 5:
+        return { quadrant: 'Top-Right (Text B Overall BOW - Block 4)', chevron: 'Non-Lit BOW (Feature 4)' };
+      case 6:
+        return { quadrant: 'Bottom-Right (Text B Extract - Block 5)', chevron: 'Non-Lit BOW (Feature 5)' };
+      case 7:
+        return { quadrant: 'Bottom-Right (Text B Extract - Block 5)', chevron: 'Non-Lit BOW (Feature 6)' };
+      case 8:
+        return { quadrant: 'Center-Bottom (Conclusion - Block 6)', chevron: 'Conclusion (Synthesis)' };
+      case 9:
+        return { quadrant: 'Center-Bottom (Conclusion - Block 6)', chevron: 'Conclusion (Evaluation)' };
+      default:
+        return { quadrant: 'General', chevron: 'General' };
+    }
+  } else {
+    // Non-literary analyzed first
+    switch (bulletIndex) {
+      case 0:
+        return { quadrant: 'Center-Top (Intro - Block 1)', chevron: 'Intro (1 min)' };
+      case 1:
+        return { quadrant: 'Center-Top (Intro - Block 1)', chevron: 'Intro (1 min)' };
+      case 2:
+        return { quadrant: 'Top-Right (Text B Overall BOW - Block 2)', chevron: 'Non-Lit BOW (Feature 1)' };
+      case 3:
+        return { quadrant: 'Bottom-Right (Text B Extract - Block 3)', chevron: 'Non-Lit BOW (Feature 2)' };
+      case 4:
+        return { quadrant: 'Bottom-Right (Text B Extract - Block 3)', chevron: 'Non-Lit BOW (Feature 3)' };
+      case 5:
+        return { quadrant: 'Top-Left (Text A Overall Work - Block 4)', chevron: 'Literary Work (Feature 4)' };
+      case 6:
+        return { quadrant: 'Bottom-Left (Text A Extract - Block 5)', chevron: 'Literary Work (Feature 5)' };
+      case 7:
+        return { quadrant: 'Bottom-Left (Text A Extract - Block 5)', chevron: 'Literary Work (Feature 6)' };
+      case 8:
+        return { quadrant: 'Center-Bottom (Conclusion - Block 6)', chevron: 'Conclusion (Synthesis)' };
+      case 9:
+        return { quadrant: 'Center-Bottom (Conclusion - Block 6)', chevron: 'Conclusion (Evaluation)' };
+      default:
+        return { quadrant: 'General', chevron: 'General' };
+    }
   }
+}
+
+export function swapAnalysisOrder(data: StudentIOData): StudentIOData {
+  const currentOrder = data.analysisOrder || 'literary_first';
+  const newOrder: 'literary_first' | 'non_literary_first' =
+    currentOrder === 'literary_first' ? 'non_literary_first' : 'literary_first';
+
+  // IMPORTANT: The categorization of textA and textB does NOT swap.
+  // textA remains Literary; textB remains Non-Literary BOW.
+  
+  // Reorder customSegments sequence between intro and conclusion
+  const segments = [...(data.customSegments || [])];
+  const introSeg = segments.find((s) => s.type === 'intro');
+  const conclusionSeg = segments.find((s) => s.type === 'conclusion');
+  const discussionSeg = segments.find((s) => s.type === 'discussion');
+
+  const litSegments = segments.filter((s) => s.type.startsWith('textA'));
+  const nonLitSegments = segments.filter((s) => s.type.startsWith('textB'));
+
+  const middleSegments = newOrder === 'non_literary_first'
+    ? [...nonLitSegments, ...litSegments]
+    : [...litSegments, ...nonLitSegments];
+
+  const newSegments: Segment[] = [];
+  if (introSeg) newSegments.push(introSeg);
+  newSegments.push(...middleSegments);
+  if (conclusionSeg) newSegments.push(conclusionSeg);
+  if (discussionSeg) newSegments.push(discussionSeg);
+
+  // Update order numbers sequentially
+  newSegments.forEach((seg, i) => {
+    seg.orderNumber = i + 1;
+  });
+
+  // Reorder the candidate speaking bullets for the two works
+  // Bullets 2, 3, 4 are the 1st analyzed work; Bullets 5, 6, 7 are the 2nd analyzed work
+  const newBullets = [...(data.bullets || [])];
+  while (newBullets.length < 10) newBullets.push('');
+
+  const firstWorkBullets = [newBullets[2], newBullets[3], newBullets[4]];
+  const secondWorkBullets = [newBullets[5], newBullets[6], newBullets[7]];
+
+  newBullets[2] = secondWorkBullets[0];
+  newBullets[3] = secondWorkBullets[1];
+  newBullets[4] = secondWorkBullets[2];
+
+  newBullets[5] = firstWorkBullets[0];
+  newBullets[6] = firstWorkBullets[1];
+  newBullets[7] = firstWorkBullets[2];
+
+  return {
+    ...data,
+    analysisOrder: newOrder,
+    customSegments: newSegments,
+    bullets: newBullets,
+  };
+}
+
+export function getPresetSegmentsWithOrder(
+  presetId: string,
+  order: 'literary_first' | 'non_literary_first' = 'literary_first'
+): Segment[] {
+  const preset = TEMPLATE_PRESETS.find((p) => p.id === presetId) || TEMPLATE_PRESETS[0];
+  const baseSegments: Segment[] = JSON.parse(JSON.stringify(preset.segments));
+
+  if (order === 'literary_first') {
+    return baseSegments;
+  }
+
+  // Non-literary first:
+  const introSeg = baseSegments.find((s) => s.type === 'intro');
+  const conclusionSeg = baseSegments.find((s) => s.type === 'conclusion');
+  const discussionSeg = baseSegments.find((s) => s.type === 'discussion');
+  const litSegments = baseSegments.filter((s) => s.type.startsWith('textA'));
+  const nonLitSegments = baseSegments.filter((s) => s.type.startsWith('textB'));
+
+  const reordered: Segment[] = [];
+  if (introSeg) reordered.push(introSeg);
+  reordered.push(...nonLitSegments, ...litSegments);
+  if (conclusionSeg) reordered.push(conclusionSeg);
+  if (discussionSeg) reordered.push(discussionSeg);
+
+  reordered.forEach((seg, i) => {
+    seg.orderNumber = i + 1;
+  });
+
+  return reordered;
 }
 
 export function loadStudentData(): StudentIOData {

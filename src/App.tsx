@@ -13,7 +13,7 @@ import { RubricReferenceModal } from './components/RubricReferenceModal';
 import { TimerControls } from './components/TimerControls';
 import { GlobalIssueReminder } from './components/GlobalIssueReminder';
 import { StudentIOData, Segment } from './types';
-import { loadStudentData, saveStudentData, DISCUSSION_SEGMENT } from './utils/templates';
+import { loadStudentData, saveStudentData, DISCUSSION_SEGMENT, swapAnalysisOrder } from './utils/templates';
 import { audioSynth } from './utils/audio';
 import { useTheme } from './hooks/useTheme';
 
@@ -195,6 +195,11 @@ export default function App() {
     saveStudentData(newData);
   }, []);
 
+  const handleSwapAnalysisOrder = useCallback(() => {
+    const updated = swapAnalysisOrder(studentData);
+    handleUpdateStudentData(updated);
+  }, [studentData, handleUpdateStudentData]);
+
   const handleUpdateBullet = useCallback((index: number, text: string) => {
     setStudentData((prev) => {
       const newBullets = [...prev.bullets];
@@ -298,6 +303,7 @@ export default function App() {
             studentData={studentData}
             onUpdateBullet={handleUpdateBullet}
             onUpdateStudentData={handleUpdateStudentData}
+            onSwapAnalysisOrder={handleSwapAnalysisOrder}
           />
         )}
 
@@ -313,6 +319,7 @@ export default function App() {
             includeDiscussion={studentData.includeDiscussion}
             onUpdateBullet={handleUpdateBullet}
             onUpdateStudentData={handleUpdateStudentData}
+            onSwapAnalysisOrder={handleSwapAnalysisOrder}
           />
         )}
 
@@ -334,6 +341,7 @@ export default function App() {
             onDismissCheckinAlert={() => setIsCheckinAlertActive(false)}
             onUpdateBullet={handleUpdateBullet}
             onUpdateStudentData={handleUpdateStudentData}
+            onSwapAnalysisOrder={handleSwapAnalysisOrder}
           />
         )}
 
