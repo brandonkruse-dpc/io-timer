@@ -12,7 +12,6 @@ import { TenBulletSheet } from './components/TenBulletSheet';
 import { RubricReferenceModal } from './components/RubricReferenceModal';
 import { TimerControls } from './components/TimerControls';
 import { GlobalIssueReminder } from './components/GlobalIssueReminder';
-import { CustomizerDrawer } from './components/CustomizerDrawer';
 import { StudentIOData, Segment } from './types';
 import { loadStudentData, saveStudentData, DISCUSSION_SEGMENT } from './utils/templates';
 import { audioSynth } from './utils/audio';
@@ -20,7 +19,6 @@ import { audioSynth } from './utils/audio';
 export default function App() {
   const [studentData, setStudentData] = useState<StudentIOData>(() => loadStudentData());
   const [activeTab, setActiveTab] = useState<ActiveTab>('quadrant');
-  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
 
   // Timer states
   const [isRunning, setIsRunning] = useState(false);
@@ -246,7 +244,6 @@ export default function App() {
       <HeaderNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenCustomizer={() => setActiveTab('outline')}
         onResetTimer={handleResetTimer}
         totalElapsedSeconds={totalElapsedSeconds}
         totalDurationSeconds={totalDurationSeconds}
@@ -366,18 +363,6 @@ export default function App() {
         </div>
 
       </main>
-
-      {/* Customize & Plan Drawer */}
-      <CustomizerDrawer
-        isOpen={isCustomizerOpen}
-        onClose={() => setIsCustomizerOpen(false)}
-        studentData={studentData}
-        onUpdateStudentData={(newData) => {
-          setStudentData(newData);
-          saveStudentData(newData);
-        }}
-        onResetTimer={handleResetTimer}
-      />
 
       {/* Quiet Academic Footer */}
       <footer className="no-print border-t border-slate-900 bg-slate-950 py-6 text-xs text-slate-500">

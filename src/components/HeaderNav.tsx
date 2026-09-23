@@ -1,12 +1,11 @@
 import React from 'react';
-import { Clock, LayoutGrid, Milestone, Eye, FileText, BookOpen, Settings2, RotateCcw } from 'lucide-react';
+import { Clock, LayoutGrid, Milestone, Eye, FileText, BookOpen, RotateCcw } from 'lucide-react';
 
 export type ActiveTab = 'quadrant' | 'chevron' | 'focus' | 'outline' | 'rubric';
 
 interface HeaderNavProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
-  onOpenCustomizer: () => void;
   onResetTimer: () => void;
   totalElapsedSeconds: number;
   totalDurationSeconds: number;
@@ -16,7 +15,6 @@ interface HeaderNavProps {
 export const HeaderNav: React.FC<HeaderNavProps> = ({
   activeTab,
   setActiveTab,
-  onOpenCustomizer,
   onResetTimer,
   totalElapsedSeconds,
   totalDurationSeconds,
@@ -141,14 +139,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Reset</span>
-          </button>
-
-          <button
-            onClick={onOpenCustomizer}
-            className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-3.5 py-1.5 text-xs font-semibold text-slate-950 hover:bg-amber-400 transition-colors shadow-sm"
-          >
-            <Settings2 className="h-3.5 w-3.5" />
-            <span>Customize & Plan</span>
           </button>
         </div>
 
