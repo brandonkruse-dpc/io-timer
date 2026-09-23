@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData } from '../types';
-import { Check, Sparkles, AlertCircle, Edit3, ArrowLeftRight } from 'lucide-react';
+import { Check, Sparkles, AlertCircle, Edit3, ArrowLeftRight, Play, Pause } from 'lucide-react';
 
 interface ChevronBulletItem {
   bulletIdx: number;
@@ -40,6 +40,7 @@ interface ChevronTimelineViewProps {
   onUpdateBullet?: (index: number, text: string) => void;
   onUpdateStudentData?: (newData: StudentIOData) => void;
   onSwapAnalysisOrder?: () => void;
+  onTogglePlay?: () => void;
 }
 
 export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
@@ -53,6 +54,7 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
   onUpdateBullet,
   onUpdateStudentData,
   onSwapAnalysisOrder,
+  onTogglePlay,
 }) => {
   // Checkbox state for features during presentation rehearsal
   const [checkedFeatures, setCheckedFeatures] = useState<Record<string, boolean>>({});
@@ -291,11 +293,41 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
               {/* Left Arrow Banner / Chevron Block */}
               <div className="relative flex items-stretch md:w-80 shrink-0">
                 {/* Time Badge block */}
-                <div className={`flex flex-col items-center justify-center px-5 py-6 ${item.badgeColor} text-white font-bold shrink-0 min-w-[70px]`}>
+                <div className={`flex flex-col items-center justify-center px-4 py-5 ${item.badgeColor} text-white font-bold shrink-0 min-w-[76px]`}>
                   <span className="text-xl font-mono-nums font-extrabold leading-none">
                     {item.timeLabel.split(' ')[0]}
                   </span>
-                  <span className="text-xs uppercase tracking-wider opacity-90">min</span>
+                  <span className="text-xs uppercase tracking-wider opacity-90 mb-1.5">min</span>
+
+                  {/* Play and Pause button on time badge */}
+                  {onTogglePlay && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isCurrentActive) {
+                          onSelectSegment(item.segmentIdx);
+                          if (!isRunning) {
+                            onTogglePlay();
+                          }
+                        } else {
+                          onTogglePlay();
+                        }
+                      }}
+                      className={`flex h-7 w-7 items-center justify-center rounded-full transition-transform active:scale-95 shadow-xs ${
+                        isCurrentActive && isRunning
+                          ? 'bg-white text-slate-950 hover:bg-white/90 ring-2 ring-white/60'
+                          : 'bg-white/20 hover:bg-white/35 text-white'
+                      }`}
+                      title={isCurrentActive && isRunning ? 'Pause timer' : `Play timer for ${item.title}`}
+                    >
+                      {isCurrentActive && isRunning ? (
+                        <Pause className="h-3.5 w-3.5 fill-current" />
+                      ) : (
+                        <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Arrow Shaped Header Block */}
@@ -326,9 +358,29 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                         {isRunning ? 'Currently Speaking' : 'Paused at this stage'}
                       </span>
                     </div>
-                    <span className="font-mono-nums text-sm font-bold text-slate-900 dark:text-white">
-                      {formatMinSec(currentSecRemaining)} remaining
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono-nums text-sm font-bold text-slate-900 dark:text-white">
+                        {formatMinSec(currentSecRemaining)} remaining
+                      </span>
+                      {onTogglePlay && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onTogglePlay();
+                          }}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-all shadow-xs ${
+                            isRunning
+                              ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          }`}
+                          title={isRunning ? 'Pause oral timer' : 'Start / resume timer'}
+                        >
+                          {isRunning ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current" />}
+                          <span>{isRunning ? 'Pause' : 'Play'}</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 

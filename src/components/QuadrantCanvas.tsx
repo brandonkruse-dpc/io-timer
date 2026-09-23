@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Segment, StudentIOData, WorkMetadata } from '../types';
 import { TEMPLATE_PRESETS } from '../utils/templates';
-import { BookOpen, Sparkles, CheckCircle, ShieldAlert, Edit3, ChevronDown, ChevronUp, ArrowLeftRight } from 'lucide-react';
+import { BookOpen, Sparkles, CheckCircle, ShieldAlert, Edit3, ChevronDown, ChevronUp, ArrowLeftRight, Play, Pause } from 'lucide-react';
 
 interface QuadrantCanvasProps {
   segments: Segment[];
@@ -13,6 +13,7 @@ interface QuadrantCanvasProps {
   onUpdateBullet?: (index: number, text: string) => void;
   onUpdateStudentData?: (newData: StudentIOData) => void;
   onSwapAnalysisOrder?: () => void;
+  onTogglePlay?: () => void;
 }
 
 export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
@@ -25,6 +26,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
   onUpdateBullet,
   onUpdateStudentData,
   onSwapAnalysisOrder,
+  onTogglePlay,
 }) => {
   const [expandedGuidance, setExpandedGuidance] = useState<Record<string, boolean>>({});
   const [editingMetadata, setEditingMetadata] = useState<Record<string, boolean>>({});
@@ -190,6 +192,24 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
             </div>
 
             <div className="flex items-center gap-1.5">
+              {isActive && onTogglePlay && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePlay();
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 ${
+                    isRunning
+                      ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-2 ring-amber-500/30'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-600/30 animate-pulse'
+                  }`}
+                  title={isRunning ? 'Pause oral timer (Space)' : 'Play oral timer (Space)'}
+                >
+                  {isRunning ? <Pause className="h-3.5 w-3.5 fill-current" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+                  <span>{isRunning ? 'Pause' : 'Play'}</span>
+                </button>
+              )}
               {icon}
             </div>
           </div>
@@ -330,9 +350,29 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               </div>
 
               <div className="mt-1.5 flex items-baseline justify-between">
-                <span className="font-mono-nums text-xl sm:text-2xl font-extrabold tracking-tight">
-                  {formatMinSec(remaining)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono-nums text-xl sm:text-2xl font-extrabold tracking-tight">
+                    {formatMinSec(remaining)}
+                  </span>
+                  {onTogglePlay && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTogglePlay();
+                      }}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold transition-all shadow-xs ${
+                        isRunning
+                          ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}
+                      title={isRunning ? 'Pause oral timer' : 'Start / resume timer'}
+                    >
+                      {isRunning ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current" />}
+                      <span>{isRunning ? 'Pause' : 'Play'}</span>
+                    </button>
+                  )}
+                </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   Target: {Math.round(segment.durationSeconds / 60)} min
                 </span>
@@ -405,7 +445,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               {isCompleted ? <CheckCircle className="h-4 w-4" /> : blockNum}
             </div>
 
-            <div className="min-w-0">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 <span>{labelHeader}</span>
                 <span className="text-slate-400 dark:text-slate-600">·</span>
@@ -413,6 +453,25 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               </div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{subtitleLabel}</h4>
             </div>
+
+            {isActive && onTogglePlay && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePlay();
+                }}
+                className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 ${
+                  isRunning
+                    ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-2 ring-amber-500/30'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-600/30 animate-pulse'
+                }`}
+                title={isRunning ? 'Pause oral timer' : 'Start oral timer'}
+              >
+                {isRunning ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current" />}
+                <span>{isRunning ? 'Pause' : 'Play'}</span>
+              </button>
+            )}
           </div>
 
           {/* Editable bullets for Intro or Conclusion */}
@@ -451,12 +510,30 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
         {/* Active mini timer */}
         {isActive && (
-          <div className="mt-3 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2 text-slate-950 dark:text-white shadow-md animate-pulse-glow">
+          <div className="mt-3 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2.5 text-slate-950 dark:text-white shadow-md animate-pulse-glow">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-rose-600 dark:text-rose-400 uppercase text-[10px]">Active</span>
-              <span className="font-mono-nums font-extrabold text-sm">
-                {formatMinSec(remaining)}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono-nums font-extrabold text-sm">
+                  {formatMinSec(remaining)}
+                </span>
+                {onTogglePlay && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTogglePlay();
+                    }}
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold transition-all shadow-xs ${
+                      isRunning ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
+                    }`}
+                    title={isRunning ? 'Pause timer' : 'Start timer'}
+                  >
+                    {isRunning ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current" />}
+                    <span>{isRunning ? 'Pause' : 'Play'}</span>
+                  </button>
+                )}
+              </div>
             </div>
             <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 mt-1.5 overflow-hidden">
               <div className="h-full bg-rose-500" style={{ width: `${percent}%` }} />
@@ -580,13 +657,24 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
             )}
 
             {/* Central Visual Hub / GI Target Shield */}
-            <div className="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-center my-auto shadow-sm">
-              <div className="h-8 w-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-1.5">
+            <div className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl border-2 border-amber-300/80 dark:border-amber-500/40 bg-gradient-to-b from-amber-50/90 to-amber-100/40 dark:from-amber-950/40 dark:to-slate-900/80 text-center my-auto shadow-sm">
+              <div className="h-8 w-8 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-700 dark:text-amber-400 mb-1.5 shadow-xs">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
                 Independent Anchor
               </span>
+
+              {/* Stated Global Issue in bold font */}
+              <div className="my-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-amber-300/90 dark:border-amber-500/40 shadow-xs max-w-[260px] w-full">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
+                  Global Issue
+                </span>
+                <p className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-amber-100 leading-snug break-words">
+                  “{studentData.globalIssue || 'Enter Global Issue'}”
+                </p>
+              </div>
+
               <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5 leading-snug max-w-[220px]">
                 Both texts anchor independently to the Global Issue with equal weight.
               </p>

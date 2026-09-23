@@ -43,7 +43,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
   // Calculate total seconds
   const totalSeconds = (studentData.customSegments || []).reduce((sum, s) => sum + s.durationSeconds, 0);
   const isExactTenMinutes = totalSeconds === 600;
-  const deltaMinutes = (totalSeconds - 600) / 60;
+  const deltaMinutes = (totalSeconds - 600);
 
   // Auto-dismiss feedback after 4 seconds
   const triggerFeedback = (type: 'success' | 'error', text: string) => {
@@ -315,8 +315,8 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               {isExactTenMinutes
                 ? '· Exactly matches the strict 10-minute IB requirement (600 seconds)!'
                 : deltaMinutes > 0
-                  ? `· Warning: Exceeds 10m target by ${Math.abs(deltaMinutes)}m. Adjust segment seconds below.`
-                  : `· Warning: Under 10m target by ${Math.abs(deltaMinutes)}m. Adjust segment seconds below.`}
+                  ? `· Warning: Exceeds 10m target by ${Math.abs(deltaMinutes)}seconds. Adjust segment seconds below.`
+                  : `· Warning: Under 10m target by ${Math.abs(deltaMinutes)}seconds. Adjust segment seconds below.`}
             </span>
           </div>
         </div>

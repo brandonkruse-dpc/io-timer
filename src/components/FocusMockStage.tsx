@@ -131,6 +131,20 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={onTogglePlay}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shadow-sm transition-all active:scale-95 ${
+              isRunning
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-2 ring-amber-500/20'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-600/20 animate-pulse'
+            }`}
+            title={isRunning ? 'Pause oral timer (Space)' : 'Play / Start oral timer (Space)'}
+          >
+            {isRunning ? <Pause className="h-3.5 w-3.5 fill-current" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+            <span>{isRunning ? 'Pause' : 'Play'}</span>
+          </button>
+
           <div className="text-right">
             <span className="text-[11px] text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold">Total Oral</span>
             <div className={`font-mono-nums font-bold text-lg leading-tight ${isOvertime ? 'text-rose-600 animate-pulse' : 'text-slate-900 dark:text-slate-200'}`}>
@@ -173,15 +187,34 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
           <span className="font-bold text-slate-900 dark:text-white">{currentSegment.title}</span>
         </div>
 
-        {/* Large Stage Segment Countdown Clock */}
-        <div className={`font-mono-nums font-black text-6xl sm:text-7xl lg:text-8xl tracking-tight transition-colors duration-300 ${
-          isSegmentWarning
-            ? 'text-rose-600 dark:text-rose-500 animate-pulse'
-            : isRunning
-              ? 'text-slate-950 dark:text-white'
-              : 'text-slate-700 dark:text-slate-400'
-        }`}>
-          {formatTime(segmentRemaining)}
+        {/* Large Stage Segment Countdown Clock with Play/Pause button */}
+        <div className="flex items-center justify-center gap-3 sm:gap-4 my-1">
+          <div className={`font-mono-nums font-black text-6xl sm:text-7xl lg:text-8xl tracking-tight transition-colors duration-300 ${
+            isSegmentWarning
+              ? 'text-rose-600 dark:text-rose-500 animate-pulse'
+              : isRunning
+                ? 'text-slate-950 dark:text-white'
+                : 'text-slate-700 dark:text-slate-400'
+          }`}>
+            {formatTime(segmentRemaining)}
+          </div>
+
+          <button
+            type="button"
+            onClick={onTogglePlay}
+            className={`flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 rounded-2xl shadow-md transition-all active:scale-95 shrink-0 ${
+              isRunning
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-500/20'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white ring-4 ring-emerald-600/20 animate-pulse'
+            }`}
+            title={isRunning ? 'Pause rehearsal timer (Space)' : 'Start rehearsal timer (Space)'}
+          >
+            {isRunning ? (
+              <Pause className="h-6 w-6 sm:h-7 sm:w-7 fill-current" />
+            ) : (
+              <Play className="h-6 w-6 sm:h-7 sm:w-7 fill-current ml-0.5" />
+            )}
+          </button>
         </div>
 
         {/* Segment Subtitle & Target Time */}
