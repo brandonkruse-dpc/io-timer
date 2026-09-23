@@ -132,16 +132,18 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
 
   return (
     <div className="w-full space-y-6">
-      {/* Title header inspired by Image 1 */}
+      {/* Title header */}
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-500 tracking-tight">
+        <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Individual Oral
         </h2>
-        <p className="text-sm font-medium text-emerald-700/80 dark:text-emerald-400/80">Outline method 1 · 10-Minute Structural Flow</p>
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-0.5">
+          Philpot Education Outline Method 1 · 10-Minute Structural Flow
+        </p>
       </div>
 
-      {/* Chevrons Container */}
-      <div className="space-y-4 max-w-4xl mx-auto">
+      {/* Chevrons Container - Full width matching header */}
+      <div className="space-y-4 w-full">
         {chevronItems.map((item) => {
           // Check if this chevron corresponds to active segment
           const isCurrentActive = activeSegmentIndex === item.segmentIdx || 
@@ -160,7 +162,7 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
               onClick={() => onSelectSegment(item.segmentIdx)}
               className={`group relative flex flex-col md:flex-row items-stretch rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer shadow-sm ${
                 isCurrentActive
-                  ? 'border-amber-500 ring-2 ring-amber-500/40 shadow-amber-500/10 scale-[1.01]'
+                  ? 'border-amber-500 ring-2 ring-amber-500/40 shadow-amber-500/10 scale-[1.005]'
                   : isCompleted
                     ? 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 opacity-80 hover:opacity-100'
                     : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700'
@@ -197,10 +199,10 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
               <div className="flex-1 bg-slate-50/70 dark:bg-white/[0.04] p-5 md:pl-10 flex flex-col justify-center transition-colors">
                 {/* Active time indicator header */}
                 {isCurrentActive && (
-                  <div className="mb-3 flex items-center justify-between rounded-lg bg-amber-500/10 px-3 py-1.5 border border-amber-500/30">
+                  <div className="mb-3 flex items-center justify-between rounded-lg bg-amber-50 dark:bg-amber-500/10 px-3 py-1.5 border border-amber-300 dark:border-amber-500/30">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
                         {isRunning ? 'Currently Speaking' : 'Paused at this stage'}
                       </span>
                     </div>
@@ -214,9 +216,9 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                 {item.bullets && (
                   <ul className="space-y-2.5">
                     {item.bullets.map((bullet, bIdx) => (
-                      <li key={bIdx} className="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                        <span className="text-rose-500 font-bold text-base leading-none mt-0.5">•</span>
-                        <span>{bullet}</span>
+                      <li key={bIdx} className="flex items-start gap-2.5 text-sm text-slate-800 dark:text-slate-200">
+                        <span className="text-rose-600 dark:text-rose-500 font-bold text-base leading-none mt-0.5">•</span>
+                        <span className="font-medium leading-relaxed">{bullet}</span>
                       </li>
                     ))}
                   </ul>
@@ -235,12 +237,12 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                           onClick={(e) => toggleFeature(featKey, e)}
                           className={`rounded-xl p-2.5 transition-colors border ${
                             isChecked
-                              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/40 text-emerald-900 dark:text-emerald-200'
-                              : 'bg-white dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 text-slate-800 dark:text-slate-200'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-200'
+                              : 'bg-white dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 text-slate-900 dark:text-slate-200'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                            <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
                               • {feat.label}
                             </span>
                             <div className="flex items-center gap-1.5 text-[11px]">
@@ -253,24 +255,24 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
                               >
                                 {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
                               </div>
-                              <span className="text-slate-500 dark:text-slate-400 text-[10px]">
+                              <span className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">
                                 {isChecked ? 'Delivered' : 'Check-off'}
                               </span>
                             </div>
                           </div>
 
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-800 dark:text-slate-300">
                             {feat.steps.map((st, sIdx) => (
                               <React.Fragment key={sIdx}>
                                 <span className={`px-1.5 py-0.5 rounded text-[11px] ${
                                   sIdx === feat.steps.length - 1
-                                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 font-semibold border border-amber-500/30'
-                                    : 'bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent'
+                                    ? 'bg-amber-100 text-amber-950 font-bold border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30'
+                                    : 'bg-slate-100 text-slate-800 font-medium border border-slate-200 dark:border-transparent dark:bg-slate-800/60 dark:text-slate-300'
                                 }`}>
                                   {st}
                                 </span>
                                 {sIdx < feat.steps.length - 1 && (
-                                  <span className="text-slate-400 dark:text-slate-500 text-[10px]">→</span>
+                                  <span className="text-slate-500 dark:text-slate-400 text-[10px]">→</span>
                                 )}
                               </React.Fragment>
                             ))}
@@ -287,9 +289,9 @@ export const ChevronTimelineView: React.FC<ChevronTimelineViewProps> = ({
       </div>
 
       {/* Philpot credit footer & IB reminder */}
-      <div className="mx-auto max-w-4xl flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-900">
+      <div className="w-full flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-900">
         <div className="flex items-center gap-1.5">
-          <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
+          <AlertCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-500" />
           <span>Philpot Education Outline Method 1 Structure</span>
         </div>
         <span>IB English A: Language & Literature</span>

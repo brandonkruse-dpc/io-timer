@@ -81,11 +81,11 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                     {labelHeader}
                   </span>
                   <span className="text-slate-400 dark:text-slate-600">·</span>
-                  <span className="text-[11px] font-mono-nums font-semibold text-slate-500 dark:text-slate-400">
+                  <span className="text-[11px] font-mono-nums font-semibold text-slate-600 dark:text-slate-400">
                     {Math.round(segment.durationSeconds / 60)} min
                   </span>
                 </div>
@@ -102,12 +102,12 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
 
           {/* Student Work details */}
           <div className="mt-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 p-2.5 border border-slate-200 dark:border-slate-800/60 text-xs">
-            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 text-[11px]">
-              <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{workMetadata.title}</span>
-              <span className="text-slate-500 truncate ml-2">by {workMetadata.creator}</span>
+            <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 text-[11px]">
+              <span className="font-bold text-slate-900 dark:text-white truncate">{workMetadata.title}</span>
+              <span className="text-slate-600 dark:text-slate-400 truncate ml-2 font-medium">by {workMetadata.creator}</span>
             </div>
             {workMetadata.extractDetails && (
-              <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300 font-medium truncate">
+              <p className="mt-1 text-[11px] text-amber-900 dark:text-amber-300 font-semibold truncate">
                 Extract: {workMetadata.extractDetails}
               </p>
             )}
@@ -116,8 +116,8 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           {/* Key Prompts & Checklist */}
           <div className="mt-3 space-y-1.5">
             {segment.keyPrompts.slice(0, 2).map((prompt, pIdx) => (
-              <div key={pIdx} className="flex items-start gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                <span className="text-amber-500 shrink-0 mt-0.5">•</span>
+              <div key={pIdx} className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-medium">
+                <span className="text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 font-bold">•</span>
                 <span className="line-clamp-2 leading-relaxed">{prompt}</span>
               </div>
             ))}
@@ -132,7 +132,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
                 <div className="text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
                   Speaking Now · {segment.title}
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+                <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-medium">
                   <span>{formatMinSec(segmentElapsedSeconds)} elapsed</span>
                 </div>
               </div>
@@ -142,7 +142,7 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
                   <span className="font-mono-nums text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                     {formatMinSec(remaining)}
                   </span>
-                  <span className="text-xs text-slate-500 font-medium uppercase">
+                  <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold uppercase">
                     Remaining
                   </span>
                 </div>
@@ -163,17 +163,17 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
               </div>
 
               {/* Real-time GI checkin reminder */}
-              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 p-2 text-[11px] text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800/50">
+              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 p-2 text-[11px] text-amber-950 dark:text-amber-200 font-medium border border-amber-300 dark:border-amber-800/50">
                 <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="line-clamp-1">{segment.giCheckinReminder}</span>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
               <span className="font-mono-nums font-semibold">
                 {isCompleted ? '✓ Completed' : `${formatMinSec(segment.durationSeconds)} planned`}
               </span>
-              <span className="flex items-center gap-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+              <span className="flex items-center gap-1 font-medium group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                 <span>{isCompleted ? 'Jump back' : 'Jump to section'}</span>
                 <ArrowRight className="h-3 w-3" />
               </span>
@@ -227,13 +227,13 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               <span>{labelHeader}</span>
               <span className="text-slate-400 dark:text-slate-600">·</span>
-              <span className="font-mono-nums font-semibold text-slate-500 dark:text-slate-400">1 min</span>
+              <span className="font-mono-nums font-semibold text-slate-600 dark:text-slate-400">1 min</span>
             </div>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{subtitleLabel}</h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-1 mt-0.5 font-medium">
               {segment.keyPrompts[0]}
             </p>
           </div>
@@ -263,24 +263,24 @@ export const QuadrantCanvas: React.FC<QuadrantCanvasProps> = ({
       <div className="relative rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/80 p-2 sm:p-4 backdrop-blur-md shadow-xl dark:shadow-2xl transition-colors">
 
         {/* 50/50 Balance Indicator Banner */}
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-600 dark:text-slate-400">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-700 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-900 dark:text-slate-200">IB Balance Check:</span>
-            <span className="rounded-lg bg-blue-500/10 px-2 py-0.5 text-blue-700 dark:text-blue-300 font-mono-nums border border-blue-500/20 font-semibold">
+            <span className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-blue-900 dark:text-blue-300 font-mono-nums border border-blue-200 dark:border-blue-500/20 font-bold">
               Literary Work: ~4m
             </span>
             <span className="text-slate-400 dark:text-slate-600">+</span>
-            <span className="rounded-lg bg-emerald-500/10 px-2 py-0.5 text-emerald-700 dark:text-emerald-300 font-mono-nums border border-emerald-500/20 font-semibold">
+            <span className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 text-emerald-900 dark:text-emerald-300 font-mono-nums border border-emerald-200 dark:border-emerald-500/20 font-bold">
               Non-Lit BOW: ~4m
             </span>
             <span className="text-slate-400 dark:text-slate-600">+</span>
-            <span className="rounded-lg bg-amber-500/10 px-2 py-0.5 text-amber-700 dark:text-amber-300 font-mono-nums border border-amber-500/20 font-semibold">
+            <span className="rounded-lg bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 text-amber-900 dark:text-amber-300 font-mono-nums border border-amber-200 dark:border-amber-500/20 font-bold">
               Intro & Concl: ~2m
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-            <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <ShieldAlert className="h-3.5 w-3.5 text-amber-600 dark:text-amber-500" />
             <span className="text-[11px] font-medium">Equal weight between Extracts & Entire Works required</span>
           </div>
         </div>

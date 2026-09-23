@@ -56,11 +56,11 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
       {/* Top bar: Global Issue Prompter */}
       <div className="relative z-10 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-slate-200 dark:border-slate-800/80">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20">
             <Globe className="h-4 w-4" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400">
               Target Global Issue
             </span>
             <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-xl">
@@ -71,9 +71,9 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-medium">Total Oral</span>
-            <div className={`font-mono-nums font-bold text-lg leading-tight ${isOvertime ? 'text-rose-500 animate-pulse' : 'text-slate-900 dark:text-slate-200'}`}>
-              {formatTime(totalElapsedSeconds)} <span className="text-slate-400 dark:text-slate-500 text-sm">/ {formatTime(totalDurationSeconds)}</span>
+            <span className="text-[11px] text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold">Total Oral</span>
+            <div className={`font-mono-nums font-bold text-lg leading-tight ${isOvertime ? 'text-rose-600 animate-pulse' : 'text-slate-900 dark:text-slate-200'}`}>
+              {formatTime(totalElapsedSeconds)} <span className="text-slate-500 dark:text-slate-500 text-sm">/ {formatTime(totalDurationSeconds)}</span>
             </div>
           </div>
         </div>
@@ -81,20 +81,20 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
 
       {/* Active GI Check-in Toast if fired */}
       {isCheckinAlertActive && (
-        <div className="relative z-20 my-4 rounded-2xl border-2 border-amber-400 bg-amber-500/20 p-4 shadow-xl backdrop-blur-md animate-bounce">
+        <div className="relative z-20 my-4 rounded-2xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-500/20 p-4 shadow-xl backdrop-blur-md animate-bounce">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <BellRing className="h-6 w-6 text-amber-600 dark:text-amber-300" />
+              <BellRing className="h-6 w-6 text-amber-700 dark:text-amber-300 shrink-0" />
               <div>
-                <h4 className="font-bold text-slate-900 dark:text-white text-base">Check-in with Global Issue!</h4>
-                <p className="text-xs text-amber-800 dark:text-amber-200">
+                <h4 className="font-bold text-amber-950 dark:text-white text-base">Check-in with Global Issue!</h4>
+                <p className="text-xs text-amber-900 dark:text-amber-200 font-medium">
                   Are you explaining the effects of this technique on the understanding of "{studentData.globalIssue}"?
                 </p>
               </div>
             </div>
             <button
               onClick={onDismissCheckinAlert}
-              className="px-4 py-2 bg-amber-400 text-slate-950 font-bold rounded-xl text-xs hover:bg-amber-300 transition-colors whitespace-nowrap shadow-sm"
+              className="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-amber-400 transition-colors whitespace-nowrap shadow-sm shrink-0"
             >
               Checked In ✓
             </button>
@@ -106,16 +106,16 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
       <div className="relative z-10 my-auto py-8 text-center flex flex-col items-center">
         
         {/* Segment pill */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/90 px-4 py-1.5 text-xs text-slate-700 dark:text-slate-300 shadow-sm">
-          <span className="font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/90 px-4 py-1.5 text-xs text-slate-800 dark:text-slate-300 shadow-sm">
+          <span className="font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
             Segment {segmentIndex + 1} of {totalSegments}
           </span>
           <span className="text-slate-400 dark:text-slate-600">·</span>
-          <span className="font-semibold text-slate-900 dark:text-white">{currentSegment.title}</span>
+          <span className="font-bold text-slate-900 dark:text-white">{currentSegment.title}</span>
         </div>
 
         {/* GI Check-in reminder quote */}
-        <p className="mt-3 text-sm text-amber-700 dark:text-amber-300/90 max-w-lg font-medium italic">
+        <p className="mt-3 text-sm text-amber-900 dark:text-amber-300/90 max-w-lg font-medium italic">
           “{currentSegment.giCheckinReminder}”
         </p>
 
@@ -124,16 +124,16 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
           <span
             className={`font-mono-nums text-7xl sm:text-9xl font-black tracking-tight select-none transition-colors duration-300 ${
               isSegmentWarning
-                ? 'text-rose-500 drop-shadow-[0_0_40px_rgba(244,63,94,0.4)] animate-pulse'
+                ? 'text-rose-600 dark:text-rose-500 drop-shadow-[0_0_40px_rgba(244,63,94,0.4)] animate-pulse'
                 : isRunning
                   ? 'text-slate-900 dark:text-white'
-                  : 'text-slate-400 dark:text-slate-500'
+                  : 'text-slate-600 dark:text-slate-400'
             }`}
           >
             {formatTime(segmentRemaining)}
           </span>
 
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-2">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 mt-2">
             Remaining in this segment ({formatTime(currentSegment.durationSeconds)} total)
           </span>
         </div>
@@ -152,8 +152,8 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
 
         {/* Live Speaking Cue from 10-Bullet Plan */}
         {studentData.bullets && studentData.bullets.length > 0 && (
-          <div className="mt-6 w-full max-w-2xl rounded-2xl border border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 text-left shadow-sm">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 block mb-1">
+          <div className="mt-6 w-full max-w-2xl rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/80 dark:bg-amber-500/10 p-3.5 text-left shadow-sm">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 dark:text-amber-400 block mb-1">
               Your 10-Bullet Speaking Cues for this segment:
             </span>
             <div className="space-y-1">
@@ -169,8 +169,8 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
                         ? [studentData.bullets[6], studentData.bullets[7]]
                         : [studentData.bullets[8], studentData.bullets[9]]
               ).filter(Boolean).map((b, bIdx) => (
-                <div key={bIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium">
-                  <span className="text-amber-500 dark:text-amber-400 font-bold">•</span>
+                <div key={bIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">•</span>
                   <span>{b}</span>
                 </div>
               ))}
@@ -184,9 +184,9 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
       <div className="relative z-10 w-full pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
         
         {/* Next segment preview */}
-        <div className="text-left text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-          <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Coming Up Next:</span>
-          <p className="text-slate-800 dark:text-slate-300 font-semibold truncate max-w-xs">
+        <div className="text-left text-xs text-slate-600 dark:text-slate-400 hidden sm:block">
+          <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-500">Coming Up Next:</span>
+          <p className="text-slate-900 dark:text-slate-200 font-semibold truncate max-w-xs">
             {segmentIndex < totalSegments - 1 ? studentData.customSegments[segmentIndex + 1]?.title : 'Finish & Discussion'}
           </p>
         </div>
@@ -196,7 +196,7 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
           <button
             onClick={onPrevSegment}
             disabled={segmentIndex === 0}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-sm"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-sm"
             title="Previous (Left Arrow)"
           >
             <SkipBack className="h-5 w-5" />
@@ -216,16 +216,16 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
           <button
             onClick={onNextSegment}
             disabled={segmentIndex >= totalSegments - 1}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-sm"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-sm"
             title="Next (Right Arrow)"
           >
             <SkipForward className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="text-right text-xs text-slate-500 dark:text-slate-400">
-          <span>Oral Countdown:</span>
-          <div className="font-mono-nums font-bold text-amber-600 dark:text-amber-300 text-sm">
+        <div className="text-right text-xs text-slate-600 dark:text-slate-400">
+          <span className="font-medium">Oral Countdown:</span>
+          <div className="font-mono-nums font-bold text-amber-800 dark:text-amber-300 text-sm">
             {formatTime(totalRemaining)} remaining
           </div>
         </div>
