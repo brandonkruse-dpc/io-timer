@@ -1,22 +1,117 @@
-import React, { useState } from 'react';
-import { StudentIOData } from '../types';
-import { saveStudentData } from '../utils/templates';
-import { Printer, Plus, Trash2, CheckCircle2, AlertCircle, FileText, Info } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { StudentIOData, Segment, TemplateId } from '../types';
+import { TEMPLATE_PRESETS, GLOBAL_ISSUE_FIELDS, saveStudentData, DEFAULT_STUDENT_DATA } from '../utils/templates';
+import { exportPlanToCSV, importPlanFromCSV } from '../utils/csv';
+import {
+  FileText,
+  Printer,
+  Download,
+  Upload,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  ArrowLeftRight,
+  ArrowUp,
+  ArrowDown,
+  RefreshCw,
+  Sliders,
+  Sparkles,
+  Check,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 
 interface TenBulletSheetProps {
   studentData: StudentIOData;
   onUpdateStudentData: (newData: StudentIOData) => void;
+  onResetTimer?: () => void;
 }
 
 export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
   studentData,
   onUpdateStudentData,
+  onResetTimer,
 }) => {
-  const [candidateNumber, setCandidateNumber] = useState('');
-  const [examDate, setExamDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showTimingCustomizer, setShowTimingCustomizer] = useState(true);
 
   const bullets = studentData.bullets || [];
 
+  // Calculate total seconds
+  const totalSeconds = (studentData.customSegments || []).reduce((sum, s) => sum + s.durationSeconds, 0);
+  const isExactTenMinutes = totalSeconds === 600;
+  const deltaMinutes = (totalSeconds - 600) / 60;
+
+  // Auto-dismiss feedback after 4 seconds
+  const triggerFeedback = (type: 'success' | 'error', text: string) => {
+    setFeedbackMessage({ type, text });
+    setTimeout(() => setFeedbackMessage(null), 4000);
+  };
+
+  // CSV Export handler
+  const handleExportCSV = () => {
+    try {
+      const csvString = exportPlanToCSV(studentData);
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const safeName = (studentData.studentName || 'candidate').toLowerCase().replace(/[^a-z0-9]/g, '_');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `ib_io_plan_${safeName}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      triggerFeedback('success', 'Plan downloaded as CSV! Keep this file to reload your work anytime.');
+    } catch (e) {
+      console.error(e);
+      triggerFeedback('error', 'Failed to generate CSV file.');
+    }
+  };
+
+  // CSV Import handler
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        if (!text) throw new Error('File is empty');
+        const importedData = importPlanFromCSV(text, studentData);
+        onUpdateStudentData(importedData);
+        saveStudentData(importedData);
+        if (onResetTimer) onResetTimer();
+        triggerFeedback('success', `Plan loaded successfully from "${file.name}"! Timers & bullets synced.`);
+      } catch (err: unknown) {
+        console.error(err);
+        const msg = err instanceof Error ? err.message : 'Invalid CSV structure';
+        triggerFeedback('error', `Failed to import CSV: ${msg}`);
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be reloaded if needed
+    e.target.value = '';
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleResetToDefault = () => {
+    if (window.confirm('Reset this entire plan and timers back to default Orwell & Fairey example?')) {
+      onUpdateStudentData(DEFAULT_STUDENT_DATA);
+      saveStudentData(DEFAULT_STUDENT_DATA);
+      if (onResetTimer) onResetTimer();
+      triggerFeedback('success', 'Reset to default sample plan.');
+    }
+  };
+
+  // Bullet manipulation
   const handleUpdateBullet = (index: number, value: string) => {
     const updated = [...bullets];
     updated[index] = value;
@@ -40,61 +135,333 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
     saveStudentData(newData);
   };
 
-  const handlePrint = () => {
-    window.print();
+  // Preset template changer
+  const handleApplyPreset = (presetId: TemplateId) => {
+    const preset = TEMPLATE_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    const updated: StudentIOData = {
+      ...studentData,
+      activeTemplateId: presetId,
+      customSegments: JSON.parse(JSON.stringify(preset.segments)),
+    };
+    onUpdateStudentData(updated);
+    saveStudentData(updated);
+    if (onResetTimer) onResetTimer();
+  };
+
+  // Move segment earlier or later
+  const handleMoveSegment = (index: number, direction: 'up' | 'down') => {
+    const newIdx = direction === 'up' ? index - 1 : index + 1;
+    if (newIdx < 0 || newIdx >= (studentData.customSegments || []).length) return;
+
+    const items = [...studentData.customSegments];
+    const [moved] = items.splice(index, 1);
+    items.splice(newIdx, 0, moved);
+
+    const reordered = items.map((seg, i) => ({ ...seg, orderNumber: i + 1 }));
+    const updated = {
+      ...studentData,
+      activeTemplateId: 'custom' as TemplateId,
+      customSegments: reordered,
+    };
+    onUpdateStudentData(updated);
+    saveStudentData(updated);
+  };
+
+  // Adjust duration of a segment
+  const handleDurationChange = (index: number, newSeconds: number) => {
+    if (newSeconds < 15) return;
+    const items = [...studentData.customSegments];
+    items[index] = { ...items[index], durationSeconds: newSeconds };
+
+    const updated = {
+      ...studentData,
+      activeTemplateId: 'custom' as TemplateId,
+      customSegments: items,
+    };
+    onUpdateStudentData(updated);
+    saveStudentData(updated);
+  };
+
+  // Swap Text A and Text B order
+  const handleSwapTexts = () => {
+    const updated = {
+      ...studentData,
+      textA: { ...studentData.textB },
+      textB: { ...studentData.textA },
+    };
+    onUpdateStudentData(updated);
+    saveStudentData(updated);
+    triggerFeedback('success', 'Swapped Text A and Text B order across all views!');
   };
 
   return (
     <div className="w-full space-y-6">
       
-      {/* Top Banner with Print and Instructions (Hidden when printing) */}
-      <div className="no-print rounded-2xl border border-slate-800 bg-slate-900/80 p-5 backdrop-blur-sm shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-amber-400" />
-            <h3 className="font-display text-lg font-bold text-white">
-              Official IB 10-Bullet Outline Form
-            </h3>
-          </div>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            IB rules permit candidates to take a maximum of <strong>10 bullet points</strong> into the oral examination room.
-            Points must be concise memory prompts, not full continuous prose or essays.
-          </p>
-        </div>
+      {/* Hidden File Input for CSV Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept=".csv,text/csv"
+        className="hidden"
+      />
 
-        <div className="flex items-center gap-3">
-          <div className="text-right text-xs">
-            <span className="text-slate-400">Permitted Points:</span>
-            <div className="font-mono-nums font-bold text-amber-300">
-              {bullets.length} / 10 Bullets Used
+      {/* Floating or Top Feedback Notification */}
+      {feedbackMessage && (
+        <div className={`no-print rounded-2xl border p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 ${
+          feedbackMessage.type === 'success'
+            ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
+            : 'bg-rose-950/90 border-rose-500/50 text-rose-200'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            {feedbackMessage.type === 'success' ? (
+              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
+            )}
+            <span className="text-xs sm:text-sm font-semibold">{feedbackMessage.text}</span>
+          </div>
+          <button
+            onClick={() => setFeedbackMessage(null)}
+            className="text-xs px-2.5 py-1 rounded-lg bg-black/30 hover:bg-black/50 text-slate-300"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Top Action Bar (Hidden in Print) */}
+      <div className="no-print rounded-3xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-md shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <span>IB 10-Bullet Master Plan & Customization Hub</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Timer Source
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Everything entered here immediately configures your Quadrant, Chevron, and Focus timers.
+              </p>
             </div>
           </div>
+        </div>
 
+        {/* Action Buttons: CSV Export, CSV Import, PDF Print */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Upload CSV */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
+            title="Upload previously exported CSV plan"
+          >
+            <Upload className="h-3.5 w-3.5 text-amber-400" />
+            <span>Upload CSV</span>
+          </button>
+
+          {/* Download CSV */}
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 text-xs font-semibold shadow-sm transition-colors"
+            title="Download this plan as CSV for editing or future sessions"
+          >
+            <Download className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Download CSV</span>
+          </button>
+
+          {/* Print PDF */}
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400 shadow-md transition-colors"
+            className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 text-xs font-bold shadow-md transition-colors"
+            title="Print official clean IB Form"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-3.5 w-3.5 stroke-[2.5]" />
             <span>Print Form (PDF)</span>
+          </button>
+
+          {/* Reset to Default */}
+          <button
+            onClick={handleResetToDefault}
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            title="Reset to default Orwell & Fairey example"
+          >
+            <RefreshCw className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* Printable Sheet Card (Styled for screen & pristine printout) */}
+      {/* 10-Minute Total Calculator Banner */}
+      <div className={`no-print rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+        isExactTenMinutes
+          ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
+          : 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+      }`}>
+        <div className="flex items-center gap-3">
+          {isExactTenMinutes ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          ) : (
+            <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+          )}
+          <div>
+            <span className="font-bold text-sm">
+              Planned Total Oral Duration: {Math.floor(totalSeconds / 60)}m {(totalSeconds % 60).toString().padStart(2, '0')}s
+            </span>
+            <span className="text-slate-400 ml-2">
+              {isExactTenMinutes
+                ? '· Exactly matches the strict 10-minute IB requirement (600 seconds)!'
+                : deltaMinutes > 0
+                  ? `· Warning: Exceeds 10m target by ${Math.abs(deltaMinutes)}m. Adjust segment seconds below.`
+                  : `· Warning: Under 10m target by ${Math.abs(deltaMinutes)}m. Adjust segment seconds below.`}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-black/40 px-3 py-1 font-mono-nums font-bold">
+            {bullets.length} / 10 Bullets Used
+          </div>
+          <button
+            onClick={() => setShowTimingCustomizer(!showTimingCustomizer)}
+            className="flex items-center gap-1 text-[11px] underline underline-offset-2 text-slate-300 hover:text-white"
+          >
+            <Sliders className="h-3 w-3" />
+            <span>{showTimingCustomizer ? 'Collapse Timer Breakdown' : 'Expand Timer Breakdown'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* TIMING & STRUCTURE SECTION (The Source for the Timers) */}
+      {showTimingCustomizer && (
+        <div className="no-print rounded-3xl border border-slate-800 bg-slate-900/60 p-5 sm:p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Sliders className="h-4 w-4 text-amber-400" />
+                <span>Timer Structure & Preset Selection</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Choose an IB structural outline or adjust seconds per segment. All changes reflect live on Quadrant and Chevron views.
+              </p>
+            </div>
+
+            <button
+              onClick={handleSwapTexts}
+              className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-400" />
+              <span>Swap Text A ⇄ Text B Order</span>
+            </button>
+          </div>
+
+          {/* Preset Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {TEMPLATE_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => handleApplyPreset(preset.id)}
+                className={`text-left p-3.5 rounded-2xl border transition-all ${
+                  studentData.activeTemplateId === preset.id
+                    ? 'border-amber-400 bg-amber-500/10 text-white shadow-lg ring-1 ring-amber-400/40'
+                    : 'border-slate-800 bg-slate-950/70 text-slate-300 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-white">{preset.name}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 font-mono">
+                    {preset.badge}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                  {preset.description}
+                </p>
+              </button>
+            ))}
+          </div>
+
+          {/* Segment Duration Adjuster */}
+          <div className="space-y-2 pt-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Sequence Segments & Planned Seconds
+            </span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {(studentData.customSegments || []).map((seg, idx) => (
+                <div
+                  key={seg.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/80 gap-2"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-[10px] font-bold text-slate-200">
+                        {idx + 1}
+                      </span>
+                      <h4 className="text-xs font-bold text-white truncate max-w-[140px]">
+                        {seg.title}
+                      </h4>
+                    </div>
+                    <span className="text-[10px] text-slate-500 block truncate">
+                      {seg.subtitle}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+                      <input
+                        type="number"
+                        step={15}
+                        min={15}
+                        max={360}
+                        value={seg.durationSeconds}
+                        onChange={(e) => handleDurationChange(idx, parseInt(e.target.value) || 60)}
+                        className="w-10 bg-transparent text-right font-mono-nums text-xs font-bold text-amber-300 focus:outline-none"
+                      />
+                      <span className="text-[10px] text-slate-500">s</span>
+                    </div>
+
+                    <button
+                      onClick={() => handleMoveSegment(idx, 'up')}
+                      disabled={idx === 0}
+                      className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-20"
+                      title="Move segment earlier"
+                    >
+                      <ArrowUp className="h-3 w-3" />
+                    </button>
+                    <button
+                      onClick={() => handleMoveSegment(idx, 'down')}
+                      disabled={idx === (studentData.customSegments || []).length - 1}
+                      className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-20"
+                      title="Move segment later"
+                    >
+                      <ArrowDown className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MASTER 10-BULLET FORM & CANDIDATE RECORD CARD (Printable + Screen) */}
       <div className="mx-auto max-w-4xl rounded-3xl border border-slate-800 bg-slate-950 p-6 sm:p-10 shadow-2xl print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         
-        {/* IB Header (Classic Diploma Programme style) */}
+        {/* IB Official Header */}
         <div className="border-b-2 border-slate-700 print:border-black pb-5 mb-6">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-amber-400 print:text-black">
                 International Baccalaureate · Diploma Programme
               </span>
-              <h2 className="font-display text-2xl font-bold text-white print:text-black mt-1">
-                Individual Oral Outline Sheet (10-Minute Assessment)
-              </h2>
+              <h1 className="font-display text-2xl font-bold text-white print:text-black mt-1">
+                Individual Oral Outline Form (10-Minute Assessment)
+              </h1>
               <p className="text-xs text-slate-400 print:text-gray-700">
-                Language A: Language and Literature
+                Language A: Language and Literature · Criteria A, B, C, D
               </p>
             </div>
             
@@ -102,22 +469,22 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               <div className="font-mono text-slate-300 print:text-black font-semibold">
                 Form: IO-OUTLINE-10
               </div>
-              <div className="text-slate-500 print:text-gray-600 text-[11px]">
-                Strict Limit: 10 Bullet Points
+              <div className="text-amber-400 print:text-gray-600 text-[11px] font-bold">
+                Max 10 Bullet Points
               </div>
             </div>
           </div>
 
-          {/* Student metadata fields */}
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-slate-900/60 print:bg-gray-100 p-3.5 rounded-xl print:rounded-none border border-slate-800 print:border-gray-300">
+          {/* Student metadata fields (Editable) */}
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs bg-slate-900/60 print:bg-gray-100 p-3.5 rounded-xl print:rounded-none border border-slate-800 print:border-gray-300">
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Candidate Name</span>
               <input
                 type="text"
-                value={studentData.studentName}
+                value={studentData.studentName || ''}
                 onChange={(e) => onUpdateStudentData({ ...studentData, studentName: e.target.value })}
-                placeholder="Student Name"
-                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none"
+                placeholder="Candidate Full Name"
+                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
               />
             </div>
 
@@ -125,10 +492,21 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Candidate Session Number</span>
               <input
                 type="text"
-                value={candidateNumber}
-                onChange={(e) => setCandidateNumber(e.target.value)}
+                value={studentData.candidateNumber || ''}
+                onChange={(e) => onUpdateStudentData({ ...studentData, candidateNumber: e.target.value })}
                 placeholder="e.g. 001234-0042"
-                className="w-full bg-transparent font-mono font-semibold text-white print:text-black focus:outline-none"
+                className="w-full bg-transparent font-mono font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
+              />
+            </div>
+
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">School Name</span>
+              <input
+                type="text"
+                value={studentData.schoolName || ''}
+                onChange={(e) => onUpdateStudentData({ ...studentData, schoolName: e.target.value })}
+                placeholder="School Name"
+                className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none placeholder-slate-600"
               />
             </div>
 
@@ -136,58 +514,199 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
               <span className="text-[10px] uppercase font-bold text-slate-400 print:text-gray-600 block">Date of Oral</span>
               <input
                 type="date"
-                value={examDate}
-                onChange={(e) => setExamDate(e.target.value)}
+                value={studentData.examDate || ''}
+                onChange={(e) => onUpdateStudentData({ ...studentData, examDate: e.target.value })}
                 className="w-full bg-transparent font-semibold text-white print:text-black focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Global Issue & Texts declaration */}
-          <div className="mt-4 space-y-2 text-xs">
-            <div className="p-3 rounded-lg bg-slate-900/40 print:bg-gray-50 border border-slate-800 print:border-gray-200">
-              <strong className="text-amber-300 print:text-black">Global Issue: </strong>
-              <span className="text-slate-200 print:text-gray-800">{studentData.globalIssue}</span>
-              <span className="text-slate-500 print:text-gray-600 ml-2">({studentData.globalIssueField})</span>
+          {/* Global Issue & Works Declaration (Editable) */}
+          <div className="mt-4 space-y-3 text-xs">
+            
+            {/* Global Issue & Field of Inquiry */}
+            <div className="p-3.5 rounded-xl bg-slate-900/60 print:bg-gray-50 border border-slate-800 print:border-gray-300 space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-amber-400 print:text-black">
+                  Global Issue Statement
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-slate-400 print:text-gray-600">Field of Inquiry:</span>
+                  <select
+                    value={studentData.globalIssueField || GLOBAL_ISSUE_FIELDS[0]}
+                    onChange={(e) => onUpdateStudentData({ ...studentData, globalIssueField: e.target.value })}
+                    className="rounded bg-slate-950 print:bg-white text-slate-200 print:text-black border border-slate-700 print:border-gray-300 text-xs px-2 py-0.5 focus:outline-none"
+                  >
+                    {GLOBAL_ISSUE_FIELDS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <textarea
+                rows={2}
+                value={studentData.globalIssue || ''}
+                onChange={(e) => onUpdateStudentData({ ...studentData, globalIssue: e.target.value })}
+                placeholder="State your precise Global Issue connecting both works..."
+                className="w-full bg-transparent text-sm font-medium text-slate-100 print:text-black focus:outline-none resize-none leading-relaxed placeholder-slate-600"
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-lg bg-blue-500/10 print:bg-gray-50 border border-blue-500/20 print:border-gray-200">
-                <strong className="text-blue-300 print:text-black">Text A (Literary): </strong>
-                <span className="text-slate-200 print:text-black">{studentData.textA.title} by {studentData.textA.creator}</span>
-                <div className="text-[11px] text-slate-400 print:text-gray-600">Extract: {studentData.textA.extractDetails}</div>
+            {/* Working Thesis Statement */}
+            <div className="p-3 rounded-xl bg-slate-900/40 print:bg-gray-50 border border-slate-800 print:border-gray-200">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 print:text-gray-600 block mb-1">
+                Working Thesis Statement (How each work presents the GI)
+              </label>
+              <textarea
+                rows={2}
+                value={studentData.thesisStatement || ''}
+                onChange={(e) => onUpdateStudentData({ ...studentData, thesisStatement: e.target.value })}
+                placeholder="Answer: How does each work uniquely construct meaning regarding the Global Issue?"
+                className="w-full bg-transparent text-xs text-slate-200 print:text-gray-800 focus:outline-none resize-none leading-relaxed placeholder-slate-600"
+              />
+            </div>
+
+            {/* Two Works Details Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              
+              {/* Text A (Literary) */}
+              <div className="p-3.5 rounded-xl bg-blue-500/10 print:bg-gray-50 border border-blue-500/30 print:border-gray-300 space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-400 print:text-black block">
+                  Text A: Literary Work
+                </span>
+                <div>
+                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Work Title & Author</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={studentData.textA?.title || ''}
+                      onChange={(e) => onUpdateStudentData({
+                        ...studentData,
+                        textA: { ...studentData.textA, title: e.target.value }
+                      })}
+                      placeholder="Title"
+                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={studentData.textA?.creator || ''}
+                      onChange={(e) => onUpdateStudentData({
+                        ...studentData,
+                        textA: { ...studentData.textA, creator: e.target.value }
+                      })}
+                      placeholder="Author"
+                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Extract Reference (approx 40 lines)</label>
+                  <input
+                    type="text"
+                    value={studentData.textA?.extractDetails || ''}
+                    onChange={(e) => onUpdateStudentData({
+                      ...studentData,
+                      textA: { ...studentData.textA, extractDetails: e.target.value }
+                    })}
+                    placeholder="e.g. Part I, Chapter 1 (Lines 24–65)"
+                    className="w-full bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 text-xs text-slate-200 print:text-black focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-emerald-500/10 print:bg-gray-50 border border-emerald-500/20 print:border-gray-200">
-                <strong className="text-emerald-300 print:text-black">Text B (Non-Literary): </strong>
-                <span className="text-slate-200 print:text-black">{studentData.textB.title} ({studentData.textB.creator})</span>
-                <div className="text-[11px] text-slate-400 print:text-gray-600">Extract: {studentData.textB.extractDetails}</div>
+              {/* Text B (Non-Literary) */}
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 print:bg-gray-50 border border-emerald-500/30 print:border-gray-300 space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 print:text-black block">
+                  Text B: Non-Literary Body of Work (BOW)
+                </span>
+                <div>
+                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Body of Work Title & Creator</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={studentData.textB?.title || ''}
+                      onChange={(e) => onUpdateStudentData({
+                        ...studentData,
+                        textB: { ...studentData.textB, title: e.target.value }
+                      })}
+                      placeholder="BOW Title"
+                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={studentData.textB?.creator || ''}
+                      onChange={(e) => onUpdateStudentData({
+                        ...studentData,
+                        textB: { ...studentData.textB, creator: e.target.value }
+                      })}
+                      placeholder="Creator / Artist"
+                      className="w-1/2 bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 font-semibold text-white print:text-black focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-slate-400 print:text-gray-600 block">Extract Reference (Single Image/Text)</label>
+                  <input
+                    type="text"
+                    value={studentData.textB?.extractDetails || ''}
+                    onChange={(e) => onUpdateStudentData({
+                      ...studentData,
+                      textB: { ...studentData.textB, extractDetails: e.target.value }
+                    })}
+                    placeholder="e.g. Screenprint #2 (2012)"
+                    className="w-full bg-slate-950/60 print:bg-white p-1.5 rounded border border-slate-800 print:border-gray-300 text-xs text-slate-200 print:text-black focus:outline-none"
+                  />
+                </div>
               </div>
+
             </div>
           </div>
         </div>
 
-        {/* 10 Bullets List */}
+        {/* 10 BULLETS LIST */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400 print:text-gray-600 pb-1">
             <span className="font-bold uppercase tracking-wider text-[11px]">
               Candidate Speaking Points (Maximum 10 Allowed)
             </span>
-            <span className="text-[11px] no-print">Keep under ~15-20 words per bullet</span>
+            <span className="text-[11px] no-print text-amber-400/90 font-medium">
+              Keep under ~15–20 words per bullet (no full essays/scripts)
+            </span>
           </div>
 
           {bullets.map((bullet, idx) => {
             const wordCount = bullet.trim() ? bullet.trim().split(/\s+/).length : 0;
             const isTooLong = wordCount > 25;
 
+            // Suggested oral phase tagging
+            const phaseHint = idx === 0 
+              ? 'Intro: Global Issue' 
+              : idx === 1 
+                ? 'Intro: Works & Thesis'
+                : idx >= 2 && idx <= 4
+                  ? 'Text A Analysis'
+                  : idx >= 5 && idx <= 7
+                    ? 'Text B Analysis'
+                    : idx === 8
+                      ? 'GI Synthesis'
+                      : 'Conclusion';
+
             return (
               <div
                 key={idx}
-                className="group relative flex items-start gap-3 p-2.5 rounded-xl border border-slate-800 print:border-gray-200 bg-slate-900/40 print:bg-white"
+                className="group relative flex items-start gap-3 p-3 rounded-2xl border border-slate-800 print:border-gray-300 bg-slate-900/50 print:bg-white transition-all hover:border-slate-700"
               >
-                {/* Bullet number */}
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/10 print:bg-gray-200 text-amber-300 print:text-black font-mono text-xs font-bold mt-0.5">
-                  {idx + 1}
+                {/* Bullet number badge */}
+                <div className="flex flex-col items-center shrink-0">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/10 print:bg-gray-200 text-amber-300 print:text-black font-mono text-xs font-bold">
+                    {idx + 1}
+                  </div>
+                  <span className="no-print text-[9px] uppercase font-bold text-slate-500 mt-1 text-center max-w-[60px] leading-tight">
+                    {phaseHint}
+                  </span>
                 </div>
 
                 {/* Textarea for bullet */}
@@ -197,19 +716,20 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
                     value={bullet}
                     onChange={(e) => handleUpdateBullet(idx, e.target.value)}
                     placeholder={`Bullet Point #${idx + 1} memory cue...`}
-                    className="w-full bg-transparent text-sm text-slate-100 print:text-black placeholder-slate-500 focus:outline-none resize-none leading-relaxed"
+                    className="w-full bg-transparent text-sm text-slate-100 print:text-black placeholder-slate-600 focus:outline-none resize-none leading-relaxed"
                   />
                   
-                  {/* Word count & suggestion (screen only) */}
-                  <div className="no-print flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                  {/* Word count & suggestion */}
+                  <div className="no-print flex items-center justify-between text-[11px] text-slate-500 pt-1">
                     <span>
-                      {wordCount} words {isTooLong && <span className="text-rose-400 font-semibold">(Warning: too long for a single cue)</span>}
+                      {wordCount} words {isTooLong && <span className="text-rose-400 font-semibold">(Warning: too long for IB memory prompt)</span>}
                     </span>
                     <button
                       onClick={() => handleRemoveBullet(idx)}
                       className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-opacity flex items-center gap-1"
+                      title="Delete bullet"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                       <span>Remove</span>
                     </button>
                   </div>
@@ -222,7 +742,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
           {bullets.length < 10 && (
             <button
               onClick={handleAddBullet}
-              className="no-print w-full py-3 rounded-xl border border-dashed border-slate-700 hover:border-amber-500 hover:bg-amber-500/5 text-slate-400 hover:text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="no-print w-full py-3.5 rounded-2xl border border-dashed border-slate-700 hover:border-amber-500 hover:bg-amber-500/5 text-slate-400 hover:text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
             >
               <Plus className="h-4 w-4" />
               <span>Add Bullet Point ({bullets.length + 1} of 10)</span>
@@ -231,11 +751,11 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
         </div>
 
         {/* Declaration signature box for official print */}
-        <div className="mt-8 pt-6 border-t border-slate-800 print:border-gray-300 text-xs text-slate-400 print:text-gray-700">
+        <div className="mt-8 pt-6 border-t border-slate-800 print:border-gray-400 text-xs text-slate-400 print:text-gray-700">
           <div className="grid grid-cols-2 gap-8 print:grid">
             <div className="space-y-6">
               <p className="text-[11px] leading-relaxed">
-                Candidate Declaration: I confirm that this outline sheet consists of 10 or fewer bullet points, and that I will adhere to the strict 10-minute presentation guidelines.
+                Candidate Declaration: I confirm that this outline sheet consists of 10 or fewer bullet points, and that I will adhere to the strict 10-minute presentation guidelines without continuous prose.
               </p>
               <div className="border-b border-slate-700 print:border-black pt-4">
                 <span className="text-[10px] uppercase text-slate-500 print:text-gray-500">Candidate Signature</span>
@@ -244,7 +764,7 @@ export const TenBulletSheet: React.FC<TenBulletSheetProps> = ({
 
             <div className="space-y-6">
               <p className="text-[11px] leading-relaxed">
-                Teacher Verification: I confirm that the candidate has prepared 10 bullet points and unannotated extracts in compliance with IB DP regulations.
+                Teacher Verification: I confirm that the candidate has prepared 10 bullet points and unannotated extracts in compliance with IB DP Language A regulations.
               </p>
               <div className="border-b border-slate-700 print:border-black pt-4">
                 <span className="text-[10px] uppercase text-slate-500 print:text-gray-500">Teacher / Invigilator Signature</span>

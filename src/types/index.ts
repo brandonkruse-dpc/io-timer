@@ -54,13 +54,16 @@ export interface WorkMetadata {
 
 export interface StudentIOData {
   studentName: string;
+  candidateNumber?: string;
   schoolName: string;
+  examDate?: string;
   globalIssue: string;
   globalIssueField: string;
   thesisStatement: string;
   textA: WorkMetadata;
   textB: WorkMetadata;
   bullets: string[]; // up to 10 bullet points allowed by IB
+  bulletSegmentMapping?: Record<number, string>; // Maps bullet index 0..9 to segment ID
   activeTemplateId: TemplateId;
   customSegments: Segment[];
   soundEnabled: boolean;

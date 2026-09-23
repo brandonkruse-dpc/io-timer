@@ -100,10 +100,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 ? 'bg-amber-500 text-slate-950 shadow-sm font-semibold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
-            title="IB 10-Bullet Outline Sheet (Printable)"
+            title="IB 10-Bullet Master Plan & Form (CSV Import/Export & Timer Source)"
           >
             <FileText className="h-3.5 w-3.5" />
-            <span>10-Bullet Sheet</span>
+            <span>10-Bullet Plan & Form</span>
           </button>
 
           <button

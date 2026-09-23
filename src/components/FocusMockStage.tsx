@@ -150,6 +150,34 @@ export const FocusMockStage: React.FC<FocusMockStageProps> = ({
           />
         </div>
 
+        {/* Live Speaking Cue from 10-Bullet Plan */}
+        {studentData.bullets && studentData.bullets.length > 0 && (
+          <div className="mt-6 w-full max-w-2xl rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-left">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">
+              Your 10-Bullet Speaking Cues for this segment:
+            </span>
+            <div className="space-y-1">
+              {(segmentIndex === 0
+                ? [studentData.bullets[0], studentData.bullets[1]]
+                : segmentIndex === 1
+                  ? [studentData.bullets[2]]
+                  : segmentIndex === 2
+                    ? [studentData.bullets[3], studentData.bullets[4]]
+                    : segmentIndex === 3
+                      ? [studentData.bullets[5]]
+                      : segmentIndex === 4
+                        ? [studentData.bullets[6], studentData.bullets[7]]
+                        : [studentData.bullets[8], studentData.bullets[9]]
+              ).filter(Boolean).map((b, bIdx) => (
+                <div key={bIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-100 font-medium">
+                  <span className="text-amber-400 font-bold">•</span>
+                  <span>{b}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Bottom bar: Controls & Rehearsal Bullets */}

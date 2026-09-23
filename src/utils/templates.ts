@@ -383,7 +383,9 @@ export const DISCUSSION_SEGMENT: Segment = {
 
 export const DEFAULT_STUDENT_DATA: StudentIOData = {
   studentName: 'Alex Mercer',
+  candidateNumber: '001234-0042',
   schoolName: 'International School',
+  examDate: '2026-09-23',
   globalIssue: 'The erosion of individual autonomy and psychological freedom under systemic state surveillance',
   globalIssueField: 'Politics, power and justice',
   thesisStatement: 'Both George Orwell’s novel 1984 and Shepard Fairey’s propaganda poster campaign demonstrate how authoritarian surveillance dismantles personal privacy, using psychological coercion to enforce ideological conformity.',

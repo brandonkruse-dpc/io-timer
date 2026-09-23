@@ -246,7 +246,7 @@ export default function App() {
       <HeaderNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenCustomizer={() => setActiveTab('outline')}
         onResetTimer={handleResetTimer}
         totalElapsedSeconds={totalElapsedSeconds}
         totalDurationSeconds={totalDurationSeconds}
@@ -320,6 +320,7 @@ export default function App() {
               setStudentData(newData);
               saveStudentData(newData);
             }}
+            onResetTimer={handleResetTimer}
           />
         )}
 
